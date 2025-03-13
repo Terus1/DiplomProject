@@ -1,0 +1,12 @@
+# Системные файлы
+.env
+
+# Виртуальное окружение
+venv/
+
+# Django файлы
+backend/db.sqlite3
+
+# Node.js зависимости
+frontend/node_modules/
+frontend/package-lock.json

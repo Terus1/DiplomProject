@@ -1,0 +1,64 @@
+{% extends 'default.html' %}
+
+{% block title %} Cars {% endblock title %}
+
+
+{% block content %}
+
+
+<form method="get">
+    {{ filter.form.as_p }}       <!-- Генерируем форму фильтрации -->
+    <button type="submit">Фильтровать</button>
+</form>
+
+
+<h1>Список машин</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th style="color: green">Модель техники</th>
+            <th style="color: green">Зав. № машины</th>
+            <th style="color: green">Модель двигателя</th>
+            <th style="color: green">Зав. № двигателя</th>
+            <th style="color: green">Модель трансмиссии (производитель, артикул)</th>
+            <th style="color: green">Зав. № трансмиссии</th>
+            <th style="color: green">Модель ведущего моста</th>
+            <th style="color: green">Зав. № ведущего моста</th>
+            <th style="color: green">Модель управляемого моста</th>
+            <th style="color: green">Зав. № управляемого моста</th>
+            <th style="color: green">Дата отгрузки с завода</th>
+<!--            <th>Покупатель</th>-->
+            <th style="color: green">Грузополучатель(конечный потребитель)</th>
+            <th style="color: green">Адрес поставки(эксплуатации)</th>
+            <th style="color: green">Комплектация</th>
+            <th style="color: green">Сервисная компания</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for car in cars %}
+        <tr>
+            <td style="color: tomato">{{ car.model_of_technique }}</td>
+            <td style="color: tomato">{{ car.machines_factory_number }}</td>
+            <td style="color: tomato">{{ car.engine_model }}</td>
+            <td style="color: tomato">{{ car.engine_serial_number }}</td>
+            <td style="color: tomato">{{ car.transmission_model }}</td>
+            <td style="color: tomato">{{ car.factory_number_of_transmission }}</td>
+            <td style="color: tomato">{{ car.driving_bridge_model }}</td>
+            <td style="color: tomato">{{ car.factory_number_of_drive_axle }}</td>
+            <td style="color: tomato">{{ car.controlled_bridge_model }}</td>
+            <td style="color: tomato">{{ car.factory_number_of_controlled_bridge }}</td>
+            <td style="color: tomato">{{ car.date_of_shipment_from_the_factory }}</td>
+<!--            <td>{{ car.client }}</td> -->
+            <td style="color: tomato">{{ car.recipient }}</td>
+            <td style="color: tomato">{{ car.delivery_address }}</td>
+            <td style="color: tomato">{{ car.equipment }}</td>
+            <td style="color: tomato">{{ car.service_company }}</td>
+        </tr>
+        <br>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock content %}

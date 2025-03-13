@@ -1,0 +1,26 @@
+.who-logged-in-from {
+    font-size: 30px;
+    font-family: 'PT Astra Sans', sans-serif;
+    background: #EBE6D6;
+    color: #D20A11;
+    text-align: center;
+}
+
+.info-about-car {
+    font-size: 30px;
+    font-family: 'PT Astra Sans', sans-serif;
+    background: #EBE6D6;
+    color: #D20A11;
+    text-align: center;
+}
+
+.info-navigation-about-car {
+    display: flex;
+    justify-content: space-between;
+}
+
+.general-info, .technical-maintenance-info, .complaints-info {
+    font-size: 20px;
+
+}
+

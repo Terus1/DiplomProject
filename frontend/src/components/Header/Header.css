@@ -1,0 +1,29 @@
+.header {
+    margin: 0;
+    height: 200px;
+    background: #EBE6D6;
+    padding-top: 30px;
+    padding-left: 60px;
+    padding-right: 60px;
+}
+
+.logo-header {
+    height: 93px;
+    width: 180px;
+}
+
+.header-elements {
+    display: flex;
+    justify-content: space-between;
+}
+
+.contacts, .authorization {
+    font-size: 20px;
+    font-family: 'PT Astra Sans', sans-serif;
+}
+
+.header-text {
+    text-align: center;
+    font-size: 30px;
+    font-family: 'PT Astra Sans', sans-serif;
+}

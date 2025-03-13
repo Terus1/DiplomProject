@@ -1,0 +1,20 @@
+{% extends 'default.html' %}
+
+{% block title %} Подробнее о машине {% endblock title %}
+
+
+{% block content %}
+
+<h2>Детали машины</h2>
+    <p><strong>Заводской № машины:</strong> {{ car.machines_factory_number }}</p>
+    <p><strong>Модель техники:</strong> {{ car.model_of_technique.name }}</p>
+    <p><strong>Модель двигателя:</strong> {{ car.engine_model.name }}</p>
+    <p><strong>Заводской № двигателя:</strong> {{ car.engine_serial_number }}</p>
+    <p><strong>Модель трансмиссии:</strong> {{ car.transmission_model.name }}</p>
+    <p><strong>Дата отгрузки с завода:</strong> {{ car.date_of_shipment_from_the_factory }}</p>
+    <p><strong>Грузополучатель:</strong> {{ car.recipient }}</p>
+    <p><strong>Адрес поставки:</strong> {{ car.delivery_address }}</p>
+    <p><strong>Комплектация:</strong> {{ car.equipment }}</p>
+
+<a href="{% url 'cars_list' %}"> Назад к списку машин </a>
+{% endblock content %}

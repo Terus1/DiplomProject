@@ -1,0 +1,17 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="newsportal.newapp.models.Category.objects" />
+          <option value="newsportal.newapp.models.Subscriber.objects" />
+          <option value="e6_AJAX.ChatProject.ChatApp.models.Room.objects" />
+          <option value="e6_AJAX.ChatProject.ChatApp.models.Room.DoesNotExist" />
+          <option value="e6_AJAX.ChatProject.ChatApp.models.Message.objects" />
+          <option value="ChatProject.ChatProject.urls.ChatApp" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
