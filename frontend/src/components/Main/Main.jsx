@@ -13,6 +13,7 @@ function Main({cars, setCars, error, setError, token}) {
                 // console.log("Данные машин", response.data);
                 setCars(response.data);
                 setError(null);
+                console.log(cars)
             } catch (error) {
                 console.error("Ошибка при получении машин", error);
                 setError("Ошибка загрузки данных. Попробуйте позже.");
@@ -72,23 +73,23 @@ function Main({cars, setCars, error, setError, token}) {
                             cars.map((car, index) => (
                                 <tr key={car.id}>
                                     <td>{index + 1}</td>
-                                    <td>{car.model_of_technique.name}</td>
+                                    <td>{car.model_of_technique_details.name} || 'нет данных'</td>
                                     {/* Модель техники */}
                                     <td>{car.machines_factory_number}</td>
                                     {/* Зав. № машины */}
-                                    <td>{car.engine_model.name}</td>
+                                    <td>{car.engine_model_details.name} || 'нет данных'</td>
                                     {/* Модель двигателя */}
                                     <td>{car.engine_serial_number}</td>
                                     {/* Зав. № двигателя */}
-                                    <td>{car.transmission_model.name}</td>
+                                    <td>{car.transmission_model_details.name} || 'нет данных'</td>
                                     {/* Модель трансмиссии (производитель, артикул) */}
                                     <td>{car.factory_number_of_transmission}</td>
                                     {/* Зав. № трансмиссии */}
-                                    <td>{car.driving_bridge_model.name}</td>
+                                    <td>{car.driving_bridge_model_details.name} || 'нет данных'</td>
                                     {/* Модель ведущего моста */}
                                     <td>{car.factory_number_of_drive_axle}</td>
                                     {/* Зав. № ведущего моста */}
-                                    <td>{car.controlled_bridge_model.name}</td>
+                                    <td>{car.controlled_bridge_model_details.name} || 'нет данных'</td>
                                     {/* Модель управляемого моста */}
                                     <td>{car.factory_number_of_controlled_bridge}</td>
                                     {/* Зав. № управляемого моста */}

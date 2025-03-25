@@ -4,7 +4,7 @@ import {options} from "axios";
 
 
 function GeneralInformation({cars, setCars, error, user, techniques, engines, transmissions, drivingBridges, controlledBridges,
-                                clients, serviceCompanies, fetchData}) {
+                                clients, recipients, serviceCompanies, fetchData, groups}) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalOpenForModel, setIsModalOpenForModel] = useState(false);
     const [modalType, setModalType] = useState(""); // Тип модального окна
@@ -20,43 +20,41 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
         controlled_bridge_model: {},
         service_company: {},
         client: {},
+        recipient: {},
     }); // Измененные данные
+
+
     const [isModalOpenForChangeCar, setIsModalOpenForChangeCar] = useState(false);
-
-
-
-
 
     useEffect(() => {
         if (cars && cars.length > 0) {
-            const firstCar = cars[0];
+            const updatedCarsData = cars.map(car => ({
+                ...car,
+                model_of_technique: car.model_of_technique || null,
+                engine_model: car.engine_model || null,
+                transmission_model: car.transmission_model || null,
+                driving_bridge_model: car.driving_bridge_model || null,
+                controlled_bridge_model: car.controlled_bridge_model || null,
+                service_company: car.service_company || null,
+                client: car.client || null,
+                recipient: car.recipient || null
+            }));
 
-            setUpdatedData(prevState => {
-                const newData = {
-                    ...firstCar,
-                    model_of_technique: firstCar.model_of_technique_details?.id || {},
-                    engine_model: firstCar.engine_model_details?.id || {},
-                    transmission_model: firstCar.transmission_model_details?.id || {},
-                    driving_bridge_model: firstCar.driving_bridge_model_details?.id || {},
-                    controlled_bridge_model: firstCar.controlled_bridge_model_details?.id || {},
-                    service_company: firstCar.service_company_details?.id || {},
-                };
-
-                console.log("Обновленные данные updatedData:", newData);
-                return newData;
-            });
+            setUpdatedData(updatedCarsData);
         }
-        console.log('cars', cars)
-        console.log('techniques', techniques)
-        console.log('engines', engines)
-    }, [cars, techniques, engines]);
+        console.log('Данные машин из GeneralInformation', cars);
+        // console.log('updatedData', updatedData)
+    }, [cars]);
+
 
 
     useEffect(() => {
-        if (updatedData.id) {
-            console.log('Обновленные updatedData:', updatedData);
+        if (updatedData && updatedData.length > 0) {
+            console.log('updatedData', updatedData)
+            console.log('Группа пользотвателя', groups[0]['name'])
         }
     }, [updatedData]);  // Логируем только когда updatedData изменилось
+
 
     // Функция для открытия формы редактирования
     const openEditModal = (car) => {
@@ -122,10 +120,6 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
     };
 
 
-
-
-
-
     // const updateCar = async () => {
     //     try {
     //         const token = localStorage.getItem('access_token')
@@ -158,17 +152,14 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
             // Создаем копию данных, заменяя объекты моделей на их ID
             const dataToSend = {
                 ...updatedData,
-                model_of_technique: updatedData.model_of_technique ? Number(updatedData.model_of_technique.id) : null,
-                engine_model: updatedData.engine_model?.id || null,
-                transmission_model: updatedData.transmission_model?.id || null,
-                driving_bridge_model: updatedData.driving_bridge_model?.id || null,
-                controlled_bridge_model: updatedData.controlled_bridge_model?.id || null,
-                service_company: updatedData.service_company?.id || null,
+                model_of_technique: updatedData.model_of_technique || null,
+                engine_model: updatedData.engine_model || null,
+                transmission_model: updatedData.transmission_model || null,
+                driving_bridge_model: updatedData.driving_bridge_model || null,
+                controlled_bridge_model: updatedData.controlled_bridge_model || null,
+                service_company: updatedData.service_company || null,
             };
             console.log("Отправляемые данные: (dataToSend)", dataToSend);
-            console.log('updatedData', updatedData)
-            console.log("model_of_technique перед отправкой:", updatedData.model_of_technique);
-
 
             const response = await fetch(`http://127.0.0.1:8000/api/cars/${editCar.id}/`, {
                 method: 'PATCH',
@@ -224,33 +215,39 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
     // Функция для обновления поля модели
     const updateField = async (field, value, endpoint) => {
         try {
-            const token = localStorage.getItem('access_token');
+            const token = localStorage.getItem("access_token");
 
-            const dataToSend = { [field]: value};
-            console.log('Отправляем PATCH запрос на эндпоинт', endpoint);
+            const dataToSend = { [field]: value };
+            console.log("Отправляем PATCH запрос на эндпоинт", endpoint);
 
             const response = await fetch(endpoint, {
-                method: 'PATCH',
+                method: "PATCH",
                 headers: {
-                    'Content-type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
                 },
-                body: JSON.stringify(dataToSend)
+                body: JSON.stringify(dataToSend),
             });
 
             if (response.ok) {
                 const responseData = await response.json();
-                console.log('Ответ сервера эндпоинта', endpoint, '=', responseData);
+                console.log("Ответ сервера:", responseData);
+
+                // 🔥 Обновляем только одно поле в updatedData, а не весь объект!
+                setUpdatedData((prevState) => ({
+                    ...prevState,
+                    [field]: value, // Обновляем только измененное поле
+                }));
+
                 return responseData;
             } else {
-                console.error(`Ошибка при обновлении данных эндпоинта ${endpoint}`);
+                console.error(`Ошибка при обновлении данных ${endpoint}`);
             }
-
         } catch (error) {
-            console.error(`Ошибка при выполнении запроса эндпоинта ${endpoint}, ошибка = ${error}`)
+            console.error(`Ошибка запроса ${endpoint}, ошибка = ${error}`);
         }
-    }
+    };
+
 
     return (
         <>
@@ -280,72 +277,221 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                     </tr>
                     </thead>
                     <tbody>
-                    {cars.length > 0 ? (
-                        cars.map((car, index) => (
-                            (car.client_details === user.nickname ? (<tr key={car.id}>
-                                <td>Машина № {index + 1} <br/>
-                                    <button className="change-info-about-car"
-                                            onClick={() => openEditModal(car)}>Изменить
-                                    </button>
-                                </td>
+                    {cars?.length > 0 ? (
+                        cars
+                            .filter(car => car.client_details.toLowerCase() === user.nickname.toLowerCase()) // Оставляем только нужные элементы
+                            .map((car, index) => (
+                                <tr key={car.id ? `car-${car.id}` : `car-index-${index}`}>
+                                    <td>Машина № {index + 1} <br/>
+                                        {(groups[0]['name'] === 'client') ?
+                                            (<button className="change-info-about-car"
+                                                     onClick={() => openEditModal(car)}>Изменить
+                                            </button>) : <></>}
 
-                                {/* Модель техники */}
-                                <td>
-                                    <button className="button-info"
-                                            onClick={() => openWindowForModel('Техника', car.model_of_technique_details?.name || 'Не указано', car.model_of_technique_details?.description || 'Описание отсутствует')}>
-                                        <span
-                                            className={'object-of-car'}>{car.model_of_technique_details?.name || 'Не указано'}</span>
-                                    </button>
-                                </td>
+                                    </td>
 
+                                    {/* Модель техники */}
+                                    <td>
+                                        <button className="button-info"
+                                                onClick={() => openWindowForModel(
+                                                    'Техника',
+                                                    car.model_of_technique_details?.name || 'Не указано',
+                                                    car.model_of_technique_details?.description || 'Описание отсутствует'
+                                                )}>
+                                            <span className={'object-of-car'}>
+                                                {car.model_of_technique_details?.name || 'Не указано'}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Зав. № машины */}
-                                <td>{car.machines_factory_number || "—"}</td>
+                                    {/* Зав. № машины */}
+                                    <td>
+                                        <button className="button-info"
+                                                onClick={() => openModal(
+                                                    'Техника',
+                                                    car.machines_factory_number || 'Не указано',
+                                                )}>
+                                            <span className={'object-of-car'}>
+                                                {car.machines_factory_number || 'Не указано'}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Модель двигателя */}
-                                <td>{car.engine_model_details?.name || "—"}</td>
+                                    {/* Модель двигателя */}
+                                    <td>
+                                        <button className="button-info"
+                                                onClick={() => openWindowForModel(
+                                                    'Двигатель',
+                                                    car.engine_model_details?.name || 'Не указано',
+                                                    car.engine_model_details?.description || 'Описание отсутствует'
+                                                )}>
+                                            <span className={'object-of-car'}>
+                                                {car.engine_model_details?.name || "—"}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Зав. № двигателя */}
-                                <td>{car.engine_serial_number || "—"}</td>
+                                    {/* Зав. № двигателя */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Зав. № двигателя',
+                                                car.engine_serial_number || 'Не указано'
+                                            )}>
+                                            <span className={'object-of-car'}>{car.engine_serial_number || "—"}</span>
+                                        </button>
+                                    </td>
 
-                                {/* Трансмиссия */}
-                                <td>{car.transmission_model_details?.name || "—"}</td>
+                                    {/* Трансмиссия */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openWindowForModel(
+                                                'Трансмиссия',
+                                                car.transmission_model_details?.name || 'Не указано',
+                                                car.transmission_model_details?.description || 'Описание отсутствует'
+                                            )}>
+                                            <span className="object-of-car">
+                                                {car.transmission_model_details?.name || "—"}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Зав. № трансмиссии */}
-                                <td>{car.factory_number_of_transmission || "—"}</td>
+                                    {/* Зав. № трансмиссии */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Зав. № трансмиссии',
+                                                car.factory_number_of_transmission || 'Не указано'
+                                            )}>
+                                            <span className="object-of-car">
+                                                {car.factory_number_of_transmission || "—"}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Ведущий мост */}
-                                <td>{car.driving_bridge_model_details?.name || "—"}</td>
+                                    {/* Ведущий мост */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openWindowForModel(
+                                                'Ведущий мост',
+                                                car.driving_bridge_model_details?.name || 'Не указано',
+                                                car.driving_bridge_model_details?.description || 'Описание отсутствует'
+                                            )}>
+                                            <span className="object-of-car">
+                                                {car.driving_bridge_model_details?.name || "—"}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Зав. № ведущего моста */}
-                                <td>{car.factory_number_of_drive_axle || "—"}</td>
+                                    {/* Зав. № ведущего моста */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Зав. № ведущего моста',
+                                                car.factory_number_of_drive_axle || 'Не указано'
+                                            )}>
+                                            <span className="object-of-car">
+                                                {car.factory_number_of_drive_axle || "—"}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Управляемый мост */}
-                                <td>{car.controlled_bridge_model_details?.name || "—"}</td>
+                                    {/* Управляемый мост */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openWindowForModel(
+                                                'Управляемый мост',
+                                                car.controlled_bridge_model_details?.name || 'Не указано',
+                                                car.controlled_bridge_model_details?.description || 'Описание отсутствует'
+                                            )}>
+                                            <span className="object-of-car">
+                                                {car.controlled_bridge_model_details?.name || "—"}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Зав. № управляемого моста */}
-                                <td>{car.factory_number_of_controlled_bridge || "—"}</td>
+                                    {/* Зав. № управляемого моста */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Зав. № управляемого моста',
+                                                car.factory_number_of_controlled_bridge || 'Не указано'
+                                            )}>
+                                            <span className="object-of-car">
+                                                {car.factory_number_of_controlled_bridge || "—"}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Дата отгрузки */}
-                                <td>{car.date_of_shipment_from_the_factory || "—"}</td>
+                                    {/* Дата отгрузки */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Дата отгрузки',
+                                                car.date_of_shipment_from_the_factory || 'Не указано'
+                                            )}>
+                                            <span className="object-of-car">
+                                                {car.date_of_shipment_from_the_factory || "—"}
+                                            </span>
+                                        </button>
+                                    </td>
 
-                                {/* Покупатель */}
-                                <td>{car.client_details || "—"}</td>
+                                    {/* Покупатель */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Покупатель',
+                                                car.client_details || 'Не указано',
+                                            )}>
+                                            <span className="object-of-car">{car.client_details || "—"}</span>
+                                        </button>
+                                    </td>
 
-                                {/* Грузополучатель */}
-                                <td>{car.recipient || "—"}</td>
+                                    {/* Грузополучатель */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Грузополучатель',
+                                                car.recipient_details || 'Не указано'
+                                            )}>
+                                            <span className="object-of-car">{car.recipient_details || "—"}</span>
+                                        </button>
+                                    </td>
 
-                                {/* Адрес поставки */}
-                                <td>{car.delivery_address || "—"}</td>
+                                    {/* Адрес поставки */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Адрес поставки',
+                                                car.delivery_address || 'Не указано'
+                                            )}>
+                                            <span className="object-of-car">{car.delivery_address || "—"}</span>
+                                        </button>
+                                    </td>
 
-                                {/* Комплектация */}
-                                <td>{car.equipment || "—"}</td>
+                                    {/* Комплектация */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Комплектация',
+                                                car.equipment || 'Не указано'
+                                            )}>
+                                            <span className="object-of-car">{car.equipment || "—"}</span>
+                                        </button>
+                                    </td>
 
-                                {/* Сервисная компания */}
-                                <td>{car.service_company_details || "—"}</td>
-                            </tr>) : (<></>))
-
-                        ))
+                                    {/* Сервисная компания */}
+                                    <td>
+                                        <button className="button-info"
+                                            onClick={() => openModal(
+                                                'Сервисная компания',
+                                                car.service_company_details || 'Не указано'
+                                            )}>
+                                            <span className="object-of-car">{car.service_company_details || "—"}</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
                     ) : (
                         <tr>
                             <td colSpan="17">Данных нет</td>
@@ -392,22 +538,29 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
 
                                     setUpdatedData(prevState => ({
                                         ...prevState,
-                                        model_of_technique: selectedModel, // Теперь сохраняем весь объект
+                                        model_of_technique: selectedModel || {}
                                     }));
 
-                                    // Проверяем, найден ли объект, и обновляем данные с сервером
                                     if (selectedModel) {
-                                        updateField("model_of_technique", selectedModel, `http://127.0.0.1:8000/api/techniques/${selectedModel.id}/`);
+                                        updateField("model_of_technique", selectedModel.id, `http://127.0.0.1:8000/api/techniques/${selectedModel.id}/`);
                                     }
                                 }}
                             >
-                                <option value="">{updatedData.model_of_technique?.name || "Выберите модель"}</option>
-                                {techniques.map(model => (
-                                    <option key={model.id} value={model.id}>{model.name}</option>
-                                ))}
+                                {/* Первая опция для выбора */}
+                                <option value="">Текущая модель техники - {updatedData.model_of_technique_details?.name}</option>
+
+                                {/* Фильтруем, чтобы текущая модель не отображалась и в списке */}
+                                {techniques
+                                    .filter(model => model.id !== updatedData.model_of_technique?.id) // Исключаем текущую модель
+                                    .map(model => (
+                                        <option key={model.id} value={model.id}>
+                                            {model.name}
+                                        </option>
+                                    ))}
                             </select>
 
 
+                            {/*Зав. № машины*/}
                             <label>Зав. № машины:</label>
                             <input type="text" name="machines_factory_number"
                                    value={updatedData.machines_factory_number || ""} onChange={handleChange}/>
@@ -421,65 +574,172 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     const selectedModel = engines.find(model => model.id === selectedId)
                                     setUpdatedData(prevState => ({
                                         ...prevState,
-                                        engine_model: selectedModel
+                                        engine_model: selectedModel || {}
                                     }));
 
                                     if (selectedModel) {
-                                        updateField('engine_model', selectedModel, `http://127.0.0.1:8000/api/engines/${selectedModel.id}/`)
+                                        updateField('engine_model', selectedModel.id, `http://127.0.0.1:8000/api/engines/${selectedModel.id}/`)
                                     }
                                 }}
                             >
-                                {/*<option value="">{updatedData.engine_model?.name || "Выберите модель"}</option>*/}
+                                <option value="">Текущая модель двигателя - {updatedData.engine_model_details?.name}</option>
                                 {engines.map(model => (
                                     <option key={model.id} value={model.id}>{model.name}</option>
                                 ))}
                             </select>
 
+                            {/*Зав. № двигателя*/}
                             <label>Зав. № двигателя:</label>
                             <input type="text" name="engine_serial_number"
                                    value={updatedData.engine_serial_number || ""} onChange={handleChange}/>
 
                             <label>Модель трансмиссии:</label>
-                            <input type="text" name="transmission_model"
-                                   value={updatedData.transmission_model?.name || ""} onChange={handleChange}/>
+                            <select
+                                name="transmission_model"
+                                value={updatedData.transmission_model?.id || ""}
+                                onChange={(e) => {
+                                    const selectedId = parseInt(e.target.value, 10);
+                                    const selectedModel = transmissions.find(model => model.id === selectedId)
+                                    setUpdatedData(prevState => ({
+                                        ...prevState,
+                                        transmission_model: selectedModel || {}
+                                    }));
 
+                                    if (selectedModel) {
+                                        updateField('transmission_model', selectedModel.id, `http://127.0.0.1:8000/api/transmissions/${selectedModel.id}/`)
+                                    }
+                                }}
+                            >
+                                <option value="">Текущая модель трансмисии - {updatedData.transmission_model_details?.name}</option>
+                                {transmissions.map(model => (
+                                    <option key={model.id} value={model.id}>{model.name}</option>
+                                ))}
+                            </select>
 
+                            {/*Зав. № трансмиссии*/}
                             <label>Зав. № трансмиссии:</label>
                             <input type="text" name="factory_number_of_transmission"
                                    value={updatedData.factory_number_of_transmission || ""} onChange={handleChange}/>
 
                             <label>Модель ведущего моста:</label>
-                            <input type="text" name="driving_bridge_model"
-                                   value={updatedData.driving_bridge_model?.name || ""} onChange={handleChange}/>
+                            <select
+                                name="driving_bridge_model"
+                                value={updatedData.driving_bridge_model?.id || ""}
+                                onChange={(e) => {
+                                    const selectedId = parseInt(e.target.value, 10);
+                                    const selectedModel = drivingBridges.find(model => model.id === selectedId)
+                                    setUpdatedData(prevState => ({
+                                        ...prevState,
+                                        driving_bridge_model: selectedModel || {}
+                                    }));
 
+                                    if (selectedModel) {
+                                        updateField('driving_bridge_model', selectedModel.id, `http://127.0.0.1:8000/api/driving-bridges/${selectedModel.id}/`)
+                                    }
+                                }}
+                            >
+                                <option
+                                    value="">Текущая модель ведущего моста - {updatedData.driving_bridge_model_details?.name}</option>
+                                {drivingBridges.map(model => (
+                                    <option key={model.id} value={model.id}>{model.name}</option>
+                                ))}
+                            </select>
+
+                            {/*Зав. № ведущего моста*/}
                             <label>Зав. № ведущего моста:</label>
                             <input type="text" name="factory_number_of_drive_axle"
                                    value={updatedData.factory_number_of_drive_axle || ""} onChange={handleChange}/>
 
                             <label>Модель управляемого моста:</label>
-                            <input type="text" name="controlled_bridge_model"
-                                   value={updatedData.controlled_bridge_model?.name || ""} onChange={handleChange}/>
+                            <select
+                                name="controlled_bridge_model"
+                                value={updatedData.controlled_bridge_model?.id || ""}
+                                onChange={(e) => {
+                                    const selectedId = parseInt(e.target.value, 10);
+                                    const selectedModel = controlledBridges.find(model => model.id === selectedId)
+                                    setUpdatedData(prevState => ({
+                                        ...prevState,
+                                        controlled_bridge_model: selectedModel || {}
+                                    }));
 
+                                    if (selectedModel) {
+                                        updateField('controlled_bridge_model', selectedModel.id, `http://127.0.0.1:8000/api/controlled-bridges/${selectedModel.id}/`)
+                                    }
+                                }}
+                            >
+                                <option
+                                    value="">Текущая модель управлямемого моста - {updatedData.controlled_bridge_model_details?.name}</option>
+                                {controlledBridges.map(model => (
+                                    <option key={model.id} value={model.id}>{model.name}</option>
+                                ))}
+                            </select>
+
+                            {/*Зав. № управляемого моста*/}
                             <label>Зав. № управляемого моста:</label>
                             <input type="text" name="factory_number_of_controlled_bridge"
                                    value={updatedData.factory_number_of_controlled_bridge || ""}
                                    onChange={handleChange}/>
 
+                            {/*Дата отгрузки с завода*/}
                             <label>Дата отгрузки с завода:</label>
                             <input type="date" name="date_of_shipment_from_the_factory"
                                    value={updatedData.date_of_shipment_from_the_factory || ""} onChange={handleChange}/>
 
                             <label>Покупатель:</label>
-                            <input type="text" name="client" value={updatedData.client || ""} onChange={handleChange}/>
+                            <select
+                                name="client"
+                                value={updatedData.client?.id || ""}
+                                onChange={(e) => {
+                                    const selectedId = parseInt(e.target.value, 10);
+                                    const selectedModel = clients.find(model => model.id === selectedId)
+                                    setUpdatedData(prevState => ({
+                                        ...prevState,
+                                        client: selectedModel || {}
+                                    }));
 
+                                    if (selectedModel) {
+                                        updateField('client', selectedModel.id, `http://127.0.0.1:8000/api/clients/${selectedModel.id}/`)
+                                    }
+                                }}
+                            >
+                                <option
+                                    value="">Текущий покупатель - {updatedData.client_details?.name}</option>
+                                {clients.map(model => (
+                                    <option key={model.id} value={model.id}>{model.name}</option>
+                                ))}
+                            </select>
+
+                            {/*Грузополучатель*/}
                             <label>Грузополучатель:</label>
-                            <input type="text" name="recipient" value={updatedData.recipient || ""}
-                                   onChange={handleChange}/>
+                            <select
+                                name="recipient"
+                                value={updatedData.recipient?.id || ""}
+                                onChange={(e) => {
+                                    const selectedId = parseInt(e.target.value, 10);
+                                    const selectedModel = recipients.find(model => model.id === selectedId)
+                                    setUpdatedData(prevState => ({
+                                        ...prevState,
+                                        recipient: selectedModel || {}
+                                    }));
 
+                                    if (selectedModel) {
+                                        updateField('recipient', selectedModel.id, `http://127.0.0.1:8000/api/recipients/${selectedModel.id}/`)
+                                    }
+                                }}
+                            >
+                                <option
+                                    value="">Текущий грузополучатель - {updatedData.recipient_details?.name}</option>
+                                {recipients.map(model => (
+                                    <option key={model.id} value={model.id}>{model.name}</option>
+                                ))}
+                            </select>
+
+                            {/*Адрес поставки*/}
                             <label>Адрес поставки:</label>
                             <input type="text" name="delivery_address" value={updatedData.delivery_address || ""}
                                    onChange={handleChange}/>
 
+                            {/*Комплектации*/}
                             <label>Комплектации:</label>
                             <input type="text" name="equipment" value={updatedData.equipment || ""}
                                    onChange={handleChange}/>
@@ -496,7 +756,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     }));
                                 }}
                             >
-                                <option value="">{updatedData.service_company?.name || "Выберите компанию"}</option>
+                                <option value="">Текущая сервисная компания - {updatedData.service_company_detail?.name}</option>
                                 {serviceCompanies.map(company => (
                                     <option key={company.id} value={company.id}>{company.name}</option>
                                 ))}

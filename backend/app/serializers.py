@@ -143,6 +143,9 @@ class CarSerializer(serializers.ModelSerializer):
     service_company = serializers.PrimaryKeyRelatedField(
         queryset=models.ServiceCompany.objects.all(), required=False, allow_null=True
     )
+    recipient = serializers.PrimaryKeyRelatedField(
+        queryset=models.Recipient.objects.all(), required=False, allow_null=True
+    )
 
     # Поля для отображения на клиенте
     model_of_technique_details = serializers.SerializerMethodField()
@@ -152,6 +155,8 @@ class CarSerializer(serializers.ModelSerializer):
     controlled_bridge_model_details = serializers.SerializerMethodField()
     client_details = serializers.SerializerMethodField()
     service_company_details = serializers.SerializerMethodField()
+    recipient_details = serializers.SerializerMethodField()
+
 
     class Meta:
         model = models.Car
@@ -169,11 +174,12 @@ class CarSerializer(serializers.ModelSerializer):
             'factory_number_of_controlled_bridge',
             'delivery_contract_number_and_date',
             'date_of_shipment_from_the_factory',
-            'recipient',
+            'recipient', 'recipient_details',
             'delivery_address',
             'equipment',
             'client', 'client_details',
-            'service_company', 'service_company_details'
+            'service_company', 'service_company_details',
+
         ]
 
     # Методы для получения детализированных данных
@@ -207,6 +213,10 @@ class CarSerializer(serializers.ModelSerializer):
 
     def get_service_company_details(self, obj):
         return obj.service_company.name if obj.service_company else None
+
+    def get_recipient_details(self, obj):
+        return obj.recipient.name if obj.recipient else None
+
 
 
 class UserSerializer(serializers.Serializer):
@@ -270,3 +280,58 @@ class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Client
         fields = ['id', 'user', 'name', 'contact_info']
+
+
+class RecipientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Recipient
+        fields = ['id', 'user', 'name']
+
+
+class TechnicalMaintenanceSerializer(serializers.ModelSerializer):
+    type_of_maintenance_name = serializers.CharField(source='type_of_maintenance.name', read_only=True)
+    organization_carried_out_maintenance_name = serializers.CharField(source='organization_carried_out_maintenance.name', read_only=True)
+    to_car_name = serializers.CharField(source='to_car.machines_factory_number', read_only=True)
+    service_company_name = serializers.CharField(source='service_company.name', read_only=True)
+
+    class Meta:
+        model = models.TechnicalMaintenance
+        fields = ['id', 'type_of_maintenance', 'type_of_maintenance_name', 'organization_carried_out_maintenance',
+                  'organization_carried_out_maintenance_name', 'to_car', 'to_car_name', 'service_company',
+                  'service_company_name', 'date_of_maintenance', 'to_operating_time', 'order_number',
+                  'order_date']
+
+
+class ComplaintSerializer(serializers.ModelSerializer):
+    failure_node_name = serializers.CharField(source='failure_node.name', read_only=True)
+    recovery_method_name = serializers.CharField(source='recovery_method.name', read_only=True)
+    complaint_car_name = serializers.CharField(source='complaint_car.machines_factory_number', read_only=True)
+    service_company_name = serializers.CharField(source='service_company.name', read_only=True)
+
+    class Meta:
+        model = models.Complaint
+        fields = ['id', 'date_of_refusal', 'complaint_operating_time', 'failure_node', 'failure_node_name',
+                  'description_of_failure',
+                  'recovery_method', 'recovery_method_name', 'used_spare_parts', 'date_of_restoration',
+                  'equipment_downtime',
+                  'complaint_car', 'complaint_car_name', 'service_company', 'service_company_name']
+
+
+class TypeOfMaintenanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TypeMaintenance
+        fields = ['id', 'name', 'description']
+
+
+class FailureNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.FailureNode
+        fields = ['id', 'name', 'description']
+
+
+class RecoveryMethodSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = models.RecoveryMethod
+        fields = ['id', 'name', 'description']

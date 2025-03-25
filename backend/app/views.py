@@ -152,3 +152,31 @@ class ClientListView(ModelViewSet):
     serializer_class = serializers.ClientSerializer
 
 
+class RecipientListView(ModelViewSet):
+    queryset = models.Recipient.objects.all()
+    serializer_class = serializers.RecipientSerializer
+
+
+class TechnicalMaintenanceListView(ModelViewSet):
+    queryset = models.TechnicalMaintenance.objects.all()
+    serializer_class = serializers.TechnicalMaintenanceSerializer
+
+
+class ComplaintListView(ModelViewSet):
+    queryset = models.Complaint.objects.all()
+    serializer_class = serializers.ComplaintSerializer
+
+
+class TypeOfMaintenanceListView(ModelViewSet):
+    queryset = models.TypeMaintenance.objects.all()
+    serializer_class = serializers.TypeOfMaintenanceSerializer
+
+
+class FailureNodeListView(ModelViewSet):
+    queryset = models.FailureNode.objects.all()
+    serializer_class = serializers.FailureNodeSerializer
+
+
+class RecoveryMethodListView(ModelViewSet):
+    queryset = models.RecoveryMethod.objects.all()
+    serializer_class = serializers.RecoveryMethodSerializer

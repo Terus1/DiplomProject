@@ -5,7 +5,7 @@ import GeneralInformation from "../GeneralInformation/GeneralInformation";
 import TechnicalMaintenance from "../TechnicalMaintenance/TechnicalMaintenance";
 import Complaint from "../Complaint/Complaint";
 
-function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoading }) {
+function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoading, groups }) {
     const [activeTab, setActiveTab] = useState("general");
     const [isLoadingCars, setIsLoadingCars] = useState(true);
 
@@ -15,7 +15,13 @@ function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoa
     const [drivingBridges, setDriveBridges] = useState([]);
     const [controlledBridges, setControlledBridges] = useState([]);
     const [clients, setClients] = useState([]);
+    const [recipients, setRecipients] = useState([]);
     const [serviceCompanies, setServiceCompanies] = useState([]);
+    const [technicalMaintenances, setTechnicalMaintenances] = useState([]);
+    const [complaints, setComplaints] = useState([]);
+    const [typeOfMaintenances, setTypeOfMaintenances] = useState([]);
+    const [failureNodes, setFailureNodes] = useState([]);
+    const [recoveryMethods, setRecoveryMethods] = useState([]);
 
 
     // Загружаем машины
@@ -25,7 +31,7 @@ function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoa
                 const response = await axios.get("http://127.0.0.1:8000/api/cars/", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                console.log("Данные машин", response.data);
+                console.log("Данные машин из AutMain", response.data);
                 setCars(response.data);
                 setError(null);
 
@@ -60,6 +66,24 @@ function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoa
                 },
             });
 
+            const responseTransmissions = await fetch('http://127.0.0.1:8000/api/transmissions/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+
+            const responseDrivingBridges = await fetch('http://127.0.0.1:8000/api/driving-bridges/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+
+            const responseControlledBridges = await fetch('http://127.0.0.1:8000/api/controlled-bridges/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+
             const responseClients = await fetch('http://127.0.0.1:8000/api/clients/', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -72,20 +96,74 @@ function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoa
                 },
             });
 
+            const responseRecipients = await fetch('http://127.0.0.1:8000/api/recipients/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            const responseTechnicalMaintenance = await fetch('http://127.0.0.1:8000/api/technical-maintenances/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+
+            const responseComplaints = await fetch('http://127.0.0.1:8000/api/complaints/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            const responseTypeOfMaintenances = await fetch('http://127.0.0.1:8000/api/type_of_maintenances/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+
+            const responseFailureNodes = await fetch('http://127.0.0.1:8000/api/failure_nodes/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+
+            const responseRecoveryMethods = await fetch('http://127.0.0.1:8000/api/recovery_methods/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+
             // Ожидание всех ответов
-            const [dataTechniques, dataEngines, dataClients, dataServiceCompanies] = await Promise.all([
+            const [dataTechniques, dataEngines, dataTransmissions, dataDrivingBridges, dataControlledBridges,
+                dataClients, dataRecipients, dataServiceCompanies,
+                dataTechnicalMaintenance, dataComplaints, dataTypeOfMaintenances, dataFailureNodes, dataRecoveryMethod] = await Promise.all([
                 responseTechniques.json(),
                 responseEngines.json(),
+                responseTransmissions.json(),
+                responseDrivingBridges.json(),
+                responseControlledBridges.json(),
                 responseClients.json(),
+                responseRecipients.json(),
                 responseServiceCompanies.json(),
+                responseTechnicalMaintenance.json(),
+                responseComplaints.json(),
+                responseTypeOfMaintenances.json(),
+                responseFailureNodes.json(),
+                responseRecoveryMethods.json(),
             ]);
             // Сохраняем данные в состояние
             setTechniques(dataTechniques);
             setEngines(dataEngines);
+            setTransmissions(dataTransmissions);
+            setDriveBridges(dataDrivingBridges);
+            setControlledBridges(dataControlledBridges);
             setClients(dataClients);
+            setRecipients(dataRecipients);
             setServiceCompanies(dataServiceCompanies);
-
-
+            setTechnicalMaintenances(dataTechnicalMaintenance);
+            setComplaints(dataComplaints);
+            setTypeOfMaintenances(dataTypeOfMaintenances);
+            setFailureNodes(dataFailureNodes);
+            setRecoveryMethods(dataRecoveryMethod);
 
             // Завершаем процесс загрузки
             setLoading(false);
@@ -138,11 +216,19 @@ function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoa
                     {activeTab === "general" && <GeneralInformation user={user} cars={cars} setCars={setCars} error={error} techniques={techniques}
                                                                     engines={engines} transmissions={transmissions}
                                                                     drivingBridges={drivingBridges} controlledBridges={controlledBridges}
-                                                                    clients={clients} serviceCompanies={serviceCompanies}
-                                                                    fetchData={fetchData}
+                                                                    clients={clients} recipients={recipients} serviceCompanies={serviceCompanies}
+                                                                    fetchData={fetchData} groups={groups}
                     />}
-                    {activeTab === "technical" && <TechnicalMaintenance />}
-                    {activeTab === "complaints" && <Complaint />}
+                    {activeTab === "technical" && <TechnicalMaintenance user={user} cars={cars}
+                                                                        technicalMaintenances={technicalMaintenances}
+                                                                        error={error} typeOfMaintenances={typeOfMaintenances}
+                                                                        serviceCompanies={serviceCompanies}
+                                                                        fetchData={fetchData} groups={groups}/>}
+
+                    {activeTab === "complaints" && <Complaint user={user} cars={cars} complaints={complaints}
+                                                              groups={groups} failureNodes={failureNodes}
+                                                              recoveryMethods={recoveryMethods}
+                                                              serviceCompanies={serviceCompanies} fetchData={fetchData} error={error}/>}
                 </>
             )}
         </>

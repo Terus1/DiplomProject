@@ -18,6 +18,26 @@ function App() {
   const [cars, setCars] = useState([]);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("access_token");
+  const [groups, setGroups] = useState([]); // Список групп пользователя
+
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/user/groups/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setGroups(response.data.groups);
+      } catch (error) {
+        console.error("Ошибка при получении групп пользователя", error);
+      }
+    };
+
+    if (token) {
+      fetchGroups();
+    }
+  }, [token]); // Вызывается только если token изменился
+
 
 
   const handleLogout = () => {
@@ -38,12 +58,12 @@ function App() {
   return (
     <>
       <div className="app-container">
-        <Header handleLogout={handleLogout} navigate={navigate} user={user} setUser={setUser} token={token}/>
+        <Header handleLogout={handleLogout} navigate={navigate} user={user} setUser={setUser} token={token} groups={groups}/>
 
         <div className="app-main-content">
         <Routes>
 
-          <Route path={'/'} element={user ? <AuthMain user={user} cars={cars} setCars={setCars} error={error} setError={setError} token={token} loading={loading} setLoading={setLoading}/> :
+          <Route path={'/'} element={user ? <AuthMain user={user} cars={cars} setCars={setCars} error={error} setError={setError} token={token} loading={loading} setLoading={setLoading} groups={groups}/> :
             <Main cars={cars} setCars={setCars} error={error} setError={setError} token={token}/>}></Route>
 
           <Route path={'/authorization'} element={<Authorization

@@ -86,6 +86,16 @@ class ModelControlledBridge(models.Model):
         return f'{self.name}'
 
 
+class Recipient(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Пользователь')
+    name = models.CharField(max_length=128, verbose_name='Имя модели грузополучателя')
+
+    class Meta:
+        verbose_name = 'Модель грузополучателя'
+        verbose_name_plural = 'Модели грузополучателя'
+
+    def __str__(self):
+        return f'{self.name}'
 # ---------------------------------------------Справочник сервисной компании--------------------------------------------
 # Сервисная компания
 class ServiceCompany(models.Model):
@@ -208,7 +218,7 @@ class Car(models.Model):
     date_of_shipment_from_the_factory = models.DateField(verbose_name='Дата отгрузки с завода')
 
     # 13. Грузополучатель (конечный потребитель). Формат: текстовое поле. Источник данных: свободный ввод
-    recipient = models.CharField(max_length=255, verbose_name='Грузополучатель (конечный потребитель)')
+    recipient = models.ForeignKey(Recipient, max_length=255, on_delete=models.PROTECT, related_name='cars', verbose_name='Грузополучатель (конечный потребитель)')
 
     # 14. Адрес поставки (эксплуатации). Формат: текстовое поле. Источник данных: свободный ввод
     delivery_address = models.CharField(max_length=255, verbose_name='Адрес поставки (эксплуатации)')
@@ -268,6 +278,9 @@ class TechnicalMaintenance(models.Model):
         verbose_name = 'ТО'
         verbose_name_plural = 'ТО'
 
+    def __str__(self):
+        return f'Вид ТО - {self.type_of_maintenance} | Заводской № машины - {self.to_car.machines_factory_number}'
+
 
 # Содержит информацию о заявленных клиентами рекламациях, и сроках их устранения.
 class Complaint(models.Model):
@@ -313,3 +326,6 @@ class Complaint(models.Model):
     class Meta:
         verbose_name = 'Рекламация'
         verbose_name_plural = 'Рекламации'
+
+    def __str__(self):
+        return f'Узел отказа: {self.failure_node.name} | Способ восстановления: {self.recovery_method.name}'

@@ -29,7 +29,10 @@ router = DefaultRouter()
 router.register(r'groups', views.GroupViewSet, basename='group')
 router.register(r'permissions', views.PermissionViewSet, basename='permission')
 router.register(r'cars', views.CarViewSet, basename='cars')
+router.register(r'technical-maintenances', views.TechnicalMaintenanceListView, basename='technical-maintenances')
+router.register(r'complaints', views.ComplaintListView, basename='complaints')
 
+# Роутеры для машин
 router.register(r'techniques', views.ModelOfTechniqueListView, basename='techniques')
 router.register(r'engines', views.ModelOfEngineListView, basename='engines')
 router.register(r'transmissions', views.ModelOfTransmissionListView, basename='transmissions')
@@ -37,6 +40,14 @@ router.register(r'driving-bridges', views.ModelOfDrivingBridgeListView, basename
 router.register(r'controlled-bridges', views.ModelOfControlledBridgeListView, basename='controlled-bridges')
 router.register(r'service-companies', views.ServiceCompanyListView, basename='service-companies')
 router.register(r'clients', views.ClientListView, basename='clients')
+router.register(r'recipients', views.RecipientListView, basename='recipients')
+
+# Роутеры для ТО
+router.register(r'type_of_maintenances', views.TypeOfMaintenanceListView, basename='type_of_maintenances')
+
+# Роутеры для рекламаций
+router.register(r'failure_nodes', views.FailureNodeListView, basename='failure_nodes')
+router.register(r'recovery_methods', views.RecoveryMethodListView, basename='recovery_methods')
 
 
 urlpatterns = [

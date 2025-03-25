@@ -60,6 +60,8 @@ admin.site.register(models.ModelDrivingBridge)  # Модель ведущего 
 admin.site.register(models.ModelControlledBridge)  # Модель управляемого моста
 admin.site.register(models.ServiceCompany)  # Сервисная компания
 admin.site.register(models.Client, ClientAdmin)  # Клиент
+admin.site.register(models.Recipient)   # Грузополучатель
+admin.site.register(models.TypeMaintenance)     # Вид ТО
 admin.site.register(models.FailureNode)  # Узел отказа
 admin.site.register(models.RecoveryMethod)  # Способ восстановления
 
