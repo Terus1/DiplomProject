@@ -1,55 +1,140 @@
+
+/* Было */
+/*.authorization-component {*/
+/*    margin-top: 30px;*/
+/*}*/
+
+/*.authorization-head{*/
+/*    margin-top: 0;*/
+/*    text-align: center;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*    font-size: 30px;*/
+/*    color: black;*/
+/*}*/
+
+/*.authorization-container {*/
+/*    margin: auto; !* Центрирование *!*/
+/*    padding: 20px 20px;*/
+/*    height: 500px;*/
+/*    width: 300px;*/
+/*    background: #EBE6D6;*/
+/*}*/
+
+/*.login-container, .password-container {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    justify-content: space-around;*/
+/*    align-items: center;*/
+/*}*/
+
+/*.login-container {*/
+/*    margin-bottom: 30px;*/
+/*}*/
+
+/*.authorization-login, .authorization-password {*/
+/*    font-size: 22px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*}*/
+
+/*.input-login, .input-password {*/
+/*    height: 20px;*/
+/*    width: 80%;*/
+/*}*/
+
+/*.button-container {*/
+/*    margin-top: 100px;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: end;*/
+/*}*/
+
+/*.enter {*/
+/*    width: 200px;*/
+/*    height: 50px;*/
+/*    border-radius: 5px;*/
+/*    font-size: 20px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*}*/
+
+
+/* Стало */
+/* Основной контейнер компонента авторизации */
 .authorization-component {
-    margin-top: 30px;
+    margin-top: 3rem;  /* Используем rem для отступов */
 }
 
-.authorization-head{
+/* Заголовок компонента */
+.authorization-head {
     margin-top: 0;
     text-align: center;
     font-family: 'PT Astra Sans', sans-serif;
-    font-size: 30px;
+    font-size: 2rem;  /* Используем rem для резинового шрифта */
     color: black;
 }
 
+/* Контейнер для всей формы авторизации */
 .authorization-container {
-    margin: auto; /* Центрирование */
-    padding: 20px 20px;
-    height: 500px;
-    width: 300px;
+    margin: auto; /* Центрируем контейнер */
+    padding: 2rem;  /* Используем rem для паддингов */
+    height: auto;  /* Делаем высоту адаптивной */
+    max-width: 90%;  /* Ширина не будет превышать 90% от экрана */
     background: #EBE6D6;
+    border-radius: 10px;  /* Округленные углы */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
+/* Контейнеры для ввода логина и пароля */
 .login-container, .password-container {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;  /* Контейнеры растягиваются на всю ширину */
+    margin-bottom: 1.5rem;  /* Используем rem для отступов */
+}
+
+/* Текстовые надписи для логина и пароля */
+.authorization-login, .authorization-password {
+    font-size: 1.25rem;  /* Используем rem для резиновых шрифтов */
+    font-family: 'PT Astra Sans', sans-serif;
+    color: #333;  /* Более темный цвет текста для контраста */
+}
+
+/* Поля ввода логина и пароля */
+.input-login, .input-password {
+    height: 2.5rem;  /* Высота для ввода */
+    width: 80%;  /* Ширина 80% от контейнера */
+    padding: 0.5rem;  /* Паддинги внутри поля */
+    font-size: 1rem;  /* Размер шрифта для ввода */
+    border: 1px solid #ccc;  /* Легкая рамка для полей */
+    border-radius: 5px;  /* Округление углов */
+}
+
+/* Контейнер кнопки */
+.button-container {
+    margin-top: 2rem;  /* Уменьшаем отступ сверху */
+    display: flex;
+    justify-content: center;
     align-items: center;
 }
 
-.login-container {
-    margin-bottom: 30px;
-}
-
-.authorization-login, .authorization-password {
-    font-size: 22px;
-    font-family: 'PT Astra Sans', sans-serif;
-}
-
-.input-login, .input-password {
-    height: 20px;
-    width: 80%;
-}
-
-.button-container {
-    margin-top: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: end;
-}
-
+/* Кнопка входа */
 .enter {
-    width: 200px;
-    height: 50px;
+    width: 100%;  /* Кнопка растягивается на всю ширину контейнера */
+    max-width: 250px;  /* Ограничиваем максимальную ширину */
+    height: 3rem;  /* Высота кнопки */
     border-radius: 5px;
-    font-size: 20px;
+    font-size: 1.25rem;  /* Увеличиваем размер шрифта */
     font-family: 'PT Astra Sans', sans-serif;
+    background-color: #D20A11;  /* Красный фон */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;  /* Плавный переход для фона */
+}
+
+.enter:hover {
+    background-color: #a10c0d;  /* Тёмный красный при наведении */
 }

@@ -1,29 +1,76 @@
+
+/* Было */
+/*.who-logged-in-from {*/
+/*    font-size: 30px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*    background: #EBE6D6;*/
+/*    color: #D20A11;*/
+/*    text-align: center;*/
+/*}*/
+
+/*.info-about-car {*/
+/*    font-size: 30px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*    background: #EBE6D6;*/
+/*    color: #D20A11;*/
+/*    text-align: center;*/
+/*}*/
+
+/*.info-navigation-about-car {*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*}*/
+
+/*.general-info, .technical-maintenance-info, .complaints-info {*/
+/*    font-size: 20px;*/
+
+/*}*/
+
+/*.active {*/
+/*    background: rgba(235, 230, 214, 0.67);*/
+/*}*/
+
+
+
+/* Стало */
 .who-logged-in-from {
-    font-size: 30px;
+    font-size: 2rem; /* Заменили фиксированный размер */
     font-family: 'PT Astra Sans', sans-serif;
     background: #EBE6D6;
     color: #D20A11;
     text-align: center;
+    padding: 1rem;
+    width: 100%;
 }
 
 .info-about-car {
-    font-size: 30px;
+    font-size: 2rem;
     font-family: 'PT Astra Sans', sans-serif;
     background: #EBE6D6;
     color: #D20A11;
     text-align: center;
+    padding: 1rem;
+    width: 100%;
 }
 
 .info-navigation-about-car {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap; /* Теперь элементы не ломаются на маленьких экранах */
+    gap: 1rem; /* Добавляем расстояние между элементами */
 }
 
 .general-info, .technical-maintenance-info, .complaints-info {
-    font-size: 20px;
-
+    font-size: 1.5rem;
+    flex: 1; /* Все элементы займут равное место */
+    min-width: 200px; /* Не дает слишком сильно сжиматься */
+    text-align: center;
+    padding: 1rem;
+    border-radius: 10px;
+    background: #EBE6D6;
 }
 
 .active {
     background: rgba(235, 230, 214, 0.67);
+    font-weight: bold;
 }

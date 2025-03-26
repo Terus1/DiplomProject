@@ -1,17 +1,45 @@
+
+/* Было */
+/*.footer {*/
+/*    height: 100px;*/
+/*    background: #EBE6D6;*/
+/*}*/
+
+/*.footer-contacts {*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    display: flex;*/
+/*    justify-content: space-around;*/
+/*    align-items: center;*/
+/*}*/
+
+/*.footer-contact-number, .footer-head {*/
+/*    font-size: 20px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*}*/
+
+
+/* Стало */
 .footer {
-    height: 100px;
+    min-height: 80px; /* Заменили фиксированную высоту на минимальную */
     background: #EBE6D6;
+    padding: 1rem; /* Добавили отступы для воздуха */
+    width: 100%;
 }
 
 .footer-contacts {
     width: 100%;
-    height: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between; /* Равномерное распределение */
     align-items: center;
+    flex-wrap: wrap; /* Чтобы не ломался на маленьких экранах */
+    gap: 1rem; /* Отступы между элементами */
 }
 
 .footer-contact-number, .footer-head {
-    font-size: 20px;
+    font-size: 1.5rem; /* Теперь текст масштабируется */
     font-family: 'PT Astra Sans', sans-serif;
+    text-align: center;
+    flex: 1; /* Элементы занимают одинаковую ширину */
+    min-width: 150px; /* Чтобы не сжимались слишком сильно */
 }

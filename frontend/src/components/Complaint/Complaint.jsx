@@ -376,10 +376,10 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
         <>
             {isManagerOrServiceCompany && <button onClick={() => setIsModalCreateOpen(true)}>Создать</button>}
 
-            <div className="results-container">
+            <div className="results-container-complaint">
             {error && <p className="error-message">{error}</p>}
 
-                <table className="table-results">
+                <table className="table-results-complaint">
                     <thead>
                     <tr>
                         <th>№ Рекламации</th>

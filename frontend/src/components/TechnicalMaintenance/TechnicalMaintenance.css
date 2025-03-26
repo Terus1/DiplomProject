@@ -1,14 +1,210 @@
+
+/* Было */
+/*.change-info-about-tm {*/
+/*    background: green;*/
+/*    color: white;*/
+/*}*/
+
+/*.form-for-create-tm {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*}*/
+
+/*.delete-info-about-tm {*/
+/*    background: #D20A11;*/
+/*    color: white;*/
+/*}*/
+
+
+/* Стало */
+
+
+
+/* Кнопка изменения информации о техническом обслуживании */
 .change-info-about-tm {
     background: green;
     color: white;
+    padding: 0.1vw 0.3vw;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
 }
 
+/* Форма для создания технического обслуживания */
 .form-for-create-tm {
     display: flex;
     flex-direction: column;
+    padding: 1rem;
 }
 
+/* Кнопка удаления информации о техническом обслуживании */
 .delete-info-about-tm {
     background: #D20A11;
     color: white;
+    padding: 0.1vw 0.4vw;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Заголовки таблицы */
+.table-results-tm th {
+    color: #D20A11;
+    font-family: 'PT Astra Sans', sans-serif;
+    background: #EBE6D6;
+}
+
+.object-of-tm {
+    font-size: 1rem;
+    font-family: 'PT Astra Sans', sans-serif;
+}
+
+
+.number-of-model {
+    font-size: 1rem;
+    color: white;
+}
+
+.table-results-tm {
+    border-collapse: collapse; /* Убирает двойные границы */
+    width: 100%; /* Растягиваем таблицу на всю ширину контейнера */
+}
+
+/* Границы для ячеек таблицы */
+.table-results-tm th,
+.table-results-tm td {
+    border: 1px solid white; /* Черные границы */
+    padding: 0.5rem; /* Отступы внутри ячеек */
+    text-align: center; /* Выравнивание текста по центру */
+}
+
+
+.table-results-tm {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Границы для ячеек таблицы */
+.table-results-tm th,
+.table-results-tm td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 1rem; /* Базовый размер */
+}
+
+
+@media (max-width: 2142px) {
+    .number-of-model {
+        font-size: 0.8rem;
+    }
+
+    .object-of-tm {
+        font-size: 0.8rem;
+    }
+
+}
+
+@media (max-width: 1800px) {
+    .object-of-tm {
+        font-size: 0.6rem;
+    }
+
+    .table-results-tm th {
+        font-size: 0.6rem;
+    }
+
+    .change-info-about-tm, .delete-info-about-tm {
+        padding: 0.1vw 0.1vw;
+        font-size: 0.6rem;
+    }
+}
+
+
+/* Делаем текст и padding адаптивными */
+@media (max-width: 1440px) {
+    .table-results-tm th,
+    .table-results-tm td {
+        font-size: 0.9rem;
+        padding: 0.4rem;
+    }
+
+    .change-info-about-tm, .delete-info-about-tm {
+        padding: 0.05vw 0.05vw;
+    }
+}
+
+@media (max-width: 1200px) {
+    .results-container-tm {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .table-results-tm {
+        display: flex;
+        width: 100%;
+        overflow-x: auto; /* Добавляем горизонтальную прокрутку при необходимости */
+    }
+
+    .table-results-tm tbody {
+        display: flex;
+    }
+
+    .table-results-tm tr {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        margin-bottom: 0.5rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-results-tm td {
+        display: flex;
+        justify-content: space-between;
+        text-align: left;
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .table-results-tm td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #D20A11;
+    }
+}
+
+
+@media (max-width: 1024px) {
+    .table-results-tm th,
+    .table-results-tm td {
+        font-size: 0.8rem;
+        padding: 0.3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-results-tm th,
+    .table-results-tm td {
+        font-size: 0.7rem;
+        padding: 0.2rem;
+    }
+}
+
+/* Делаем таблицу скролл-адаптивной для маленьких экранов */
+@media (max-width: 600px) {
+    .table-results-tm {
+        overflow-x: auto; /* Горизонтальный скролл */
+        white-space: nowrap; /* Чтобы текст не переносился */
+    }
+
+    .table-results-tm th,
+    .table-results-tm td {
+        font-size: 0.6rem;
+        padding: 0.1rem;
+    }
 }

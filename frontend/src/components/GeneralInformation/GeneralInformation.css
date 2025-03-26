@@ -1,26 +1,151 @@
-.results-container {
-    margin-top: 50px;
+/* Было */
+/*.results-container {*/
+/*    margin-top: 50px;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*}*/
+
+/*.table-results {*/
+/*    border-collapse: collapse; !* Убирает двойные границы *!*/
+/*    width: 100%;*/
+/*}*/
+
+/*.object-of-car {*/
+/*    font-size: 15px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*}*/
+
+/*.change-info-about-car {*/
+/*    background: green;*/
+/*    color: white;*/
+
+/*}*/
+
+
+
+/*!* Модальное окно *!*/
+/*.modal-overlay {*/
+/*    position: fixed;*/
+/*    top: 0;*/
+/*    left: 0;*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    background: rgba(0, 0, 0, 0.5);*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*}*/
+
+/*.modal {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    background: white;*/
+/*    padding: 20px;*/
+/*    border-radius: 8px;*/
+/*    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);*/
+/*    text-align: center;*/
+/*    max-width: 400px;*/
+/*    width: 100%;*/
+/*}*/
+
+/*.model {*/
+/*    font-size: 20px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*}*/
+
+/*.name-of-model {*/
+/*    font-size: 25px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*}*/
+
+
+/*.close-btn {*/
+/*    margin-top: 10px;*/
+/*    padding: 8px 12px;*/
+/*    background: #ff4d4d;*/
+/*    color: white;*/
+/*    border: none;*/
+/*    border-radius: 5px;*/
+/*    cursor: pointer;*/
+/*}*/
+
+/*.close-btn:hover {*/
+/*    background: #d43f3f;*/
+/*}*/
+
+/*!*!* Кнопка модели двигателя *!*!*/
+/*!*.engine-btn {*!*/
+/*!*    background: none;*!*/
+/*!*    border: none;*!*/
+/*!*    color: white;*!*/
+/*!*    cursor: pointer;*!*/
+/*!*    font-size: 14px;*!*/
+/*!*    font-family: 'PT Astra Sans', sans-serif;*!*/
+/*!*}*!*/
+
+/*.button-info {*/
+/*    background: #EBE6D6;*/
+/*    border: none;*/
+/*    cursor: pointer;*/
+/*    border-radius: 5px;*/
+/*}*/
+
+
+/*.button-info:hover{*/
+/*    background: rgba(235, 230, 214, 0.76);*/
+/*}*/
+
+
+/*.form-for-create-car {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*}*/
+
+/*thead {*/
+/*    background: #EBE6D6*/
+/*}*/
+
+/*.table-results th {*/
+/*    color: #D20A11;*/
+/*}*/
+
+/*.delete-info-about-car {*/
+/*    background: #D20A11;*/
+/*    color: white;*/
+/*}*/
+
+
+
+/* Стало */
+/* Контейнер для результатов */
+.results-container-general-info {
+    margin-top: 3rem; /* Используем rem для отступа */
     display: flex;
     justify-content: center;
-}
-
-.table-results {
-    border-collapse: collapse; /* Убирает двойные границы */
     width: 100%;
+    padding: 0 1rem; /* Добавляем отступы для мобильных устройств */
 }
 
+/* Таблица */
+.table-results-general-info {
+    border-collapse: collapse; /* Убирает двойные границы */
+    width: 100%; /* Растягиваем таблицу на всю ширину контейнера */
+}
+
+/* Классы для текста в таблице */
 .object-of-car {
-    font-size: 15px;
     font-family: 'PT Astra Sans', sans-serif;
+    font-size: 1rem;
 }
 
+/* Кнопка для изменения информации о машине */
 .change-info-about-car {
     background: green;
     color: white;
-
+    padding: 0.1vw 0.3vw;
+    border-radius: 5px;
+    font-size: 1rem;
 }
-
-
 
 /* Модальное окно */
 .modal-overlay {
@@ -35,32 +160,36 @@
     align-items: center;
 }
 
+/* Модальное окно */
 .modal {
     display: flex;
     flex-direction: column;
     background: white;
-    padding: 20px;
+    padding: 2rem;
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
     text-align: center;
-    max-width: 400px;
+    max-width: 80%;
     width: 100%;
+    margin: 0 1rem;
 }
 
+/* Шрифт для модели */
 .model {
-    font-size: 20px;
+    font-size: 1.25rem; /* Используем rem для шрифта */
     font-family: 'PT Astra Sans', sans-serif;
 }
 
+/* Название модели */
 .name-of-model {
-    font-size: 25px;
+    font-size: 1.5rem; /* Размер шрифта для названия модели */
     font-family: 'PT Astra Sans', sans-serif;
 }
 
-
+/* Кнопка закрытия модального окна */
 .close-btn {
-    margin-top: 10px;
-    padding: 8px 12px;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
     background: #ff4d4d;
     color: white;
     border: none;
@@ -72,44 +201,257 @@
     background: #d43f3f;
 }
 
-/*!* Кнопка модели двигателя *!*/
-/*.engine-btn {*/
-/*    background: none;*/
-/*    border: none;*/
-/*    color: white;*/
-/*    cursor: pointer;*/
-/*    font-size: 14px;*/
-/*    font-family: 'PT Astra Sans', sans-serif;*/
-/*}*/
-
+/* Кнопка информации */
 .button-info {
     background: #EBE6D6;
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    padding: 0.8vw 0.5vw; /* Размеры зависят от ширины экрана */
 }
 
-
-.button-info:hover{
+.button-info:hover {
     background: rgba(235, 230, 214, 0.76);
 }
 
-
+/* Форма для создания машины */
 .form-for-create-car {
     display: flex;
     flex-direction: column;
 }
 
-thead {
-    background: #EBE6D6
+/*!* Заголовок таблицы *!*/
+/*thead {*/
+/*    background: #EBE6D6;*/
+/*}*/
+
+.number-of-model {
+    font-size: 1rem;
 }
 
-.table-results th {
+/* Заголовки таблицы */
+.table-results-general-info th {
     color: #D20A11;
+    font-family: 'PT Astra Sans', sans-serif;
+    font-size: 20px;
 }
 
+
+/* Кнопка для удаления информации */
 .delete-info-about-car {
     background: #D20A11;
     color: white;
+    padding: 0.1vw 0.4vw;
+    border-radius: 5px;
+    font-size: 1rem;
 }
+
+
+/* Контейнер для таблицы */
+.results-container-general-info {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0 1rem;
+    overflow-x: auto; /* Позволяет таблице не выходить за границы экрана */
+}
+
+/* Таблица */
+.table-results-general-info {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 100%;
+    font-size: 1vw;
+    table-layout: fixed; /* Теперь таблица будет адаптироваться */
+}
+
+/* Ячейки таблицы */
+.table-results-general-info th,
+.table-results-general-info td {
+    padding: 0.8rem;
+    text-align: center;
+    border: 1px solid #ccc;
+    word-break: break-word; /* Чтобы длинные слова не ломали верстку */
+}
+
+/* Названия колонок */
+.table-results-general-info th {
+    background: #EBE6D6;
+    color: #D20A11;
+    font-family: 'PT Astra Sans', sans-serif;
+    font-size: 1rem;
+}
+
+/* --- АДАПТИВНОСТЬ --- */
+
+@media (max-width: 2142px) {
+    .number-of-model {
+        font-size: 0.8rem;
+        color: white;
+    }
+
+    .object-of-car {
+        font-size: 0.8rem;
+    }
+
+    .table-results-general-info th {
+        font-size: 0.8rem;
+    }
+
+    .change-info-about-car, .delete-info-about-car {
+        padding: 0.1vw 0.1vw;
+        font-size: 1rem;
+    }
+
+}
+
+@media (max-width: 1800px) {
+    .object-of-car {
+        font-size: 0.6rem;
+    }
+
+    .table-results-general-info th {
+        font-size: 0.6rem;
+    }
+
+    .change-info-about-car, .delete-info-about-car {
+        padding: 0.1vw 0.1vw;
+        font-size: 0.6rem;
+    }
+}
+
+@media (max-width: 1400px) {
+    .button-info {
+        padding: 0.2vw 0.2vw;
+    }
+
+    .object-of-car {
+        font-size: 0.6rem;
+    }
+
+    .table-results-general-info th {
+        font-size: 0.6rem;
+    }
+
+    .change-info-about-car, .delete-info-about-car {
+        padding: 0.05vw 0.05vw;
+    }
+}
+
+/* Для экранов 768px и меньше (планшеты) */
+@media (max-width: 1200px) {
+    .results-container-general-info {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .table-results-general-info {
+        display: flex;
+        width: 100%;
+        overflow-x: auto; /* Добавляем горизонтальную прокрутку при необходимости */
+    }
+
+    /*.table-results-general-info thead {*/
+    /*    display: none; !* Убираем заголовки *!*/
+    /*}*/
+
+    .table-results-general-info tbody {
+        display: flex;
+    }
+
+    .table-results-general-info tr {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        margin-bottom: 0.5rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-results-general-info td {
+        display: flex;
+        justify-content: space-between;
+        text-align: left;
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .table-results-general-info td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #D20A11;
+    }
+}
+
+
+/*!* Для экранов 1024px и меньше *!*/
+/*@media (max-width: 1024px) {*/
+/*    .table-results-general-info {*/
+/*        font-size: 1rem;*/
+/*    }*/
+/*}*/
+
+/*!* Для экранов 768px и меньше (планшеты) *!*/
+/*@media (max-width: 768px) {*/
+/*    .results-container {*/
+/*        flex-direction: column;*/
+/*        align-items: center;*/
+/*    }*/
+
+/*    .table-results-general-info {*/
+/*        display: block;*/
+/*        width: 100%;*/
+/*        overflow-x: auto; !* Добавляем горизонтальную прокрутку при необходимости *!*/
+/*    }*/
+
+/*    .table-results-general-info thead {*/
+/*        display: none; !* Убираем заголовки *!*/
+/*    }*/
+
+/*    .table-results-general-info tr {*/
+/*        display: flex;*/
+/*        flex-direction: column;*/
+/*        border: 1px solid #ddd;*/
+/*        margin-bottom: 0.5rem;*/
+/*        padding: 1rem;*/
+/*        border-radius: 8px;*/
+/*        background: white;*/
+/*        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);*/
+/*    }*/
+
+/*    .table-results-general-info td {*/
+/*        display: flex;*/
+/*        justify-content: space-between;*/
+/*        text-align: left;*/
+/*        font-size: 1rem;*/
+/*        padding: 0.5rem 1rem;*/
+/*    }*/
+
+/*    .table-results-general-info td::before {*/
+/*        content: attr(data-label);*/
+/*        font-weight: bold;*/
+/*        color: #D20A11;*/
+/*    }*/
+/*}*/
+
+/*!* Для экранов 480px и меньше (мобильные) *!*/
+/*@media (max-width: 480px) {*/
+/*    .table-results-general-info {*/
+/*        font-size: 0.9rem;*/
+/*    }*/
+
+/*    .table-results-general-info tr {*/
+/*        padding: 0.8rem;*/
+/*    }*/
+
+/*    .table-results-general-info td {*/
+/*        font-size: 0.85rem;*/
+/*        padding: 0.4rem 0.8rem;*/
+/*    }*/
+/*}*/
+
+
 

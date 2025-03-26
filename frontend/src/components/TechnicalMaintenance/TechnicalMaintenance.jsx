@@ -381,10 +381,10 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
     return (
         <>
             <button onClick={() => setIsModalCreateOpen(true)}>Создать</button>
-            <div className="results-container">
+            <div className="results-container-tm">
                 {error && <p className="error-message">{error}</p>}
 
-                <table className="table-results">
+                <table className="table-results-tm">
                     <thead>
                     <tr>
                         <th>№ ТО</th>
@@ -401,7 +401,7 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                     <tbody>
                     {userTechnicalMaintenances.map(tm => (
                         <tr key={tm.id}>
-                            <td>{tm.id}
+                            <td><span className="number-of-model">ТО №: {tm.id}</span>
                                 {isClientOrServiceOrManger ? (<div className={'buttons'}>
                                     <button className={'change-info-about-tm'}
                                             onClick={() => openEditModal(tm)}>Изменить

@@ -391,10 +391,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
         <>
             {isManager && <button onClick={() => setIsModalCreateOpen(true)}>Создать</button>}
 
-            <div className="results-container">
+            <div className="results-container-general-info">
                 {error && <p className="error-message">{error}</p>}
 
-                <table className="table-results">
+                <table className="table-results-general-info">
                     <thead className={'thead'}>
                     <tr>
                         <th>№ п/п</th>
@@ -421,7 +421,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                         userCars
                             .map((car, index) => (
                                 <tr key={car.id ? `car-${car.id}` : `car-index-${index}`}>
-                                    <td>Машина № {index + 1} <br/>
+                                    <td><span className="number-of-model">Машина № {index + 1}</span> <br/>
                                         {isManager && (
                                             <div className="buttons">
                                                 <button className="change-info-about-car"

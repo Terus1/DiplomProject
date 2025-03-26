@@ -1,29 +1,70 @@
+
+/* Было */
+/*.header {*/
+/*    margin: 0;*/
+/*    height: 200px;*/
+/*    background: #EBE6D6;*/
+/*    padding-top: 30px;*/
+/*    padding-left: 60px;*/
+/*    padding-right: 60px;*/
+/*}*/
+
+/*.logo-header {*/
+/*    height: 93px;*/
+/*    width: 180px;*/
+/*}*/
+
+/*.header-elements {*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*}*/
+
+/*.contacts, .authorization {*/
+/*    font-size: 20px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*}*/
+
+/*.header-text {*/
+/*    text-align: center;*/
+/*    font-size: 30px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*}*/
+
+
+
+/* Стало */
 .header {
     margin: 0;
-    height: 200px;
+    width: 100%; /* Растягиваем шапку на всю ширину */
+    min-height: 10vh; /* Минимальная высота в зависимости от экрана */
     background: #EBE6D6;
-    padding-top: 30px;
-    padding-left: 60px;
-    padding-right: 60px;
+    padding: 2vh 5vw; /* Адаптивный отступ */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .logo-header {
-    height: 93px;
-    width: 180px;
+    max-width: 15vw; /* Логотип будет адаптивным */
+    height: auto;
 }
 
 .header-elements {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap; /* Позволяет элементам переноситься при уменьшении экрана */
+    gap: 2vw; /* Добавляем расстояние между элементами */
 }
 
 .contacts, .authorization {
-    font-size: 20px;
+    font-size: 1.2rem; /* Заменяем фиксированный размер на относительный */
     font-family: 'PT Astra Sans', sans-serif;
 }
 
 .header-text {
     text-align: center;
-    font-size: 30px;
+    font-size: 2vw; /* Делаем заголовок адаптивным */
     font-family: 'PT Astra Sans', sans-serif;
 }

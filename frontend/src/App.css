@@ -38,12 +38,53 @@
 /*}*/
 
 
-html, body {
-    height: 100%;
+
+/* Было */
+/*html, body {*/
+/*    height: 100%;*/
+/*    margin: 0;*/
+/*    padding: 0;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*}*/
+
+/*!* Контейнер всей страницы *!*/
+/*.app-container {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    min-height: 100vh; !* Высота на весь экран *!*/
+/*}*/
+
+/*!* Основной контент растягивается *!*/
+/*.app-main-content {*/
+/*    flex: 1;*/
+/*    background: #163E6C;*/
+/*}*/
+
+/*@font-face {*/
+/*    font-family: 'PT Astra Sans';*/
+/*    src: url('./assets/fonts/PT-Astra-Sans_Bold.ttf') format('truetype');*/
+/*    font-weight: bold;*/
+/*    font-style: normal;*/
+/*}*/
+
+
+/* Стало */
+/* Сброс маргинов и паддингов для всех элементов */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;  /* Учитываем отступы и границы в расчёт ширины и высоты */
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
+}
+
+/* Общее оформление для html и body */
+html, body {
+    height: 100%; /* Заполняем весь экран */
+    width: 100%;  /* Обеспечиваем растяжение по ширине */
+    font-family: Arial, sans-serif; /* Можно заменить на ваш шрифт */
+    overflow-x: hidden; /* Запрещаем горизонтальную прокрутку */
 }
 
 /* Контейнер всей страницы */
@@ -51,12 +92,52 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 100vh; /* Высота на весь экран */
+    width: 100%; /* Растягиваем на всю ширину */
 }
 
-/* Основной контент растягивается */
+/* Основной контент */
 .app-main-content {
-    flex: 1;
-    background: #163E6C;
+    flex: 1; /* Растягивается на всю доступную высоту */
+    background-color: #163E6C; /* Фон для основного контента */
+    padding: 2rem;  /* Используем rem для отступов */
+    overflow: auto; /* Чтобы содержимое не выходило за пределы контейнера */
+}
+
+/* Медиа-запросы для адаптации под разные разрешения */
+
+/* Для экранов шире 1920px */
+@media (min-width: 1921px) {
+    .app-main-content {
+        padding: 3rem; /* Увеличиваем отступы для больших экранов */
+    }
+}
+
+/* Для экранов до 1440px */
+@media (max-width: 1440px) {
+    .app-main-content {
+        padding: 1.5rem; /* Уменьшаем отступы */
+    }
+}
+
+/* Для экранов до 1366px */
+@media (max-width: 1366px) {
+    .app-main-content {
+        padding: 1rem; /* Еще меньше отступы */
+    }
+}
+
+/* Для экранов до 768px (планшеты) */
+@media (max-width: 768px) {
+    .app-main-content {
+        padding: 0.8rem;
+    }
+}
+
+/* Для экранов до 480px (мобильные устройства) */
+@media (max-width: 480px) {
+    .app-main-content {
+        padding: 0.5rem;
+    }
 }
 
 @font-face {
@@ -65,3 +146,4 @@ html, body {
     font-weight: bold;
     font-style: normal;
 }
+

@@ -1,81 +1,196 @@
+
+/* Было */
+/*.main {*/
+/*    margin: 0;*/
+/*    padding-left: 60px;*/
+/*    padding-right: 60px;*/
+/*    !*background: #163E6C;*!*/
+/*}*/
+
+/*.main-text{*/
+/*    margin: 0;*/
+/*    font-size: 30px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*    text-align: center;*/
+/*    color: white;*/
+/*    margin-bottom: 50px;*/
+/*}*/
+
+/*.search-elements {*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    width: 1000px;*/
+/*}*/
+
+/*.factory-number-elements {*/
+/*    width: 350px;*/
+/*    height: 50px;*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*}*/
+
+/*.factory-number-text {*/
+/*    color: white;*/
+/*    font-size: 18px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*    margin: 0;*/
+/*}*/
+
+/*.input-factory-number {*/
+/*    height: 20px;*/
+/*}*/
+
+/*.search-button {*/
+/*    width: 300px;*/
+/*    height: 30px;*/
+/*    background: #D20A11;*/
+/*    color: white;*/
+/*    font-size: 20px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+
+/*}*/
+
+/*.search-result {*/
+/*    text-align: center;*/
+/*}*/
+
+/*.search-result-text {*/
+/*    margin-top: 50px;*/
+/*    margin-bottom: 0;*/
+/*    font-size: 30px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*    color: white;*/
+/*}*/
+
+/*.results-container {*/
+/*    margin-top: 50px;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*}*/
+
+/*.table-results {*/
+/*    border-collapse: collapse; !* Убирает двойные границы *!*/
+/*    width: 100%;*/
+/*}*/
+
+/*.table-results th, .table-results td {*/
+/*    border: 1px solid white; !* Граница ячеек *!*/
+/*    padding: 8px; !* Внутренний отступ *!*/
+/*    text-align: center; !* Выравнивание текста *!*/
+/*    font-size: 20px;*/
+/*    font-family: 'PT Astra Sans', sans-serif;*/
+/*    color: white;*/
+/*}*/
+
+
+/* Стало */
+/* Общие стили для .main */
 .main {
     margin: 0;
-    padding-left: 60px;
-    padding-right: 60px;
-    /*background: #163E6C;*/
+    padding-left: 5%;  /* Отступы по бокам в процентах */
+    padding-right: 5%; /* Отступы по бокам в процентах */
+    /*background: #163E6C;*/  /* Можно добавить фон */
 }
 
-.main-text{
+/* Стили для текста */
+.main-text {
     margin: 0;
-    font-size: 30px;
+    font-size: 2rem;  /* Используем rem для резиновых шрифтов */
     font-family: 'PT Astra Sans', sans-serif;
     text-align: center;
     color: white;
-    margin-bottom: 50px;
+    margin-bottom: 3rem;  /* Используем rem для адаптивных отступов */
 }
 
+/* Поиск (search elements) */
 .search-elements {
     display: flex;
     justify-content: space-between;
-    width: 1000px;
+    width: 100%;  /* Растягиваем на всю ширину контейнера */
+    flex-wrap: wrap;  /* Чтобы элементы не выходили за пределы */
+    gap: 20px;  /* Добавляем отступы между элементами */
 }
 
+/* Элементы для ввода номера */
 .factory-number-elements {
-    width: 350px;
-    height: 50px;
+    flex: 1;
+    max-width: 350px;  /* Ограничиваем ширину */
+    height: 3rem;  /* Используем rem */
     display: flex;
     justify-content: space-between;
 }
 
+/* Текст для фабричного номера */
 .factory-number-text {
     color: white;
-    font-size: 18px;
+    font-size: 1rem;  /* Используем rem */
     font-family: 'PT Astra Sans', sans-serif;
     margin: 0;
 }
 
+/* Поле для ввода фабричного номера */
 .input-factory-number {
-    height: 20px;
+    height: 2rem;  /* Используем rem */
+    width: 100%;  /* Растягиваем на всю ширину родителя */
 }
 
+/* Кнопка поиска */
 .search-button {
-    width: 300px;
-    height: 30px;
+    width: 100%;  /* Делаем кнопку шириной 100% */
+    max-width: 300px;  /* Ограничиваем максимальную ширину */
+    height: 3rem;  /* Используем rem для высоты */
     background: #D20A11;
     color: white;
-    font-size: 20px;
+    font-size: 1.25rem;  /* Используем rem */
     font-family: 'PT Astra Sans', sans-serif;
-
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Результаты поиска */
 .search-result {
     text-align: center;
 }
 
+/* Текст результата поиска */
 .search-result-text {
-    margin-top: 50px;
+    margin-top: 3rem;  /* Используем rem для отступов */
     margin-bottom: 0;
-    font-size: 30px;
+    font-size: 2rem;  /* Используем rem для шрифта */
     font-family: 'PT Astra Sans', sans-serif;
     color: white;
 }
 
+/* Контейнер для результатов */
 .results-container {
-    margin-top: 50px;
+    margin-top: 3rem;  /* Используем rem */
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;  /* Для адаптивности на маленьких экранах */
+    gap: 20px;  /* Добавляем промежутки между таблицами или результатами */
 }
 
+/* Таблица с результатами */
 .table-results {
-    border-collapse: collapse; /* Убирает двойные границы */
-    width: 100%;
+    border-collapse: collapse;
+    width: 100%;  /* Таблица будет растягиваться на всю ширину */
+    max-width: 1200px;  /* Ограничиваем максимальную ширину */
 }
 
+/* Стиль для ячеек таблицы */
 .table-results th, .table-results td {
-    border: 1px solid white; /* Граница ячеек */
-    padding: 8px; /* Внутренний отступ */
-    text-align: center; /* Выравнивание текста */
-    font-size: 20px;
+    border: 1px solid white;
+    padding: 1rem;  /* Используем rem */
+    text-align: center;
+    font-size: 1.25rem;  /* Используем rem */
     font-family: 'PT Astra Sans', sans-serif;
     color: white;
+
+}
+
+.table-results th {
+    background: #EBE6D6;
+    color: #D20A11;
 }
