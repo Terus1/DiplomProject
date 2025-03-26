@@ -19,6 +19,17 @@
 /* Стало */
 
 
+.create-tm-button {
+    margin-top: 20px;
+    width: 100%;
+    height: 40px;
+    font-family: 'PT Astra Sans', sans-serif;
+    font-size: 20px;
+}
+
+.results-container-tm {
+    margin-top: 3rem;
+}
 
 /* Кнопка изменения информации о техническом обслуживании */
 .change-info-about-tm {

@@ -87,7 +87,7 @@ class ModelControlledBridge(models.Model):
 
 
 class Recipient(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Пользователь')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
     name = models.CharField(max_length=128, verbose_name='Имя модели грузополучателя')
 
     class Meta:

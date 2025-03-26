@@ -46,7 +46,19 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
     })
     const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
     const [userCars, setUserCars] = useState([])
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filteredCars, setFilteredCars] = useState([]);
 
+    const handleSearch = () => {
+        const filtered = cars.filter(car =>
+            car.machines_factory_number.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredCars(filtered);
+    };
+
+    useEffect(() => {
+        setFilteredCars(userCars); // Синхронизация при обновлении userCars
+    }, [userCars]);
 
     useEffect(() => {
         if (cars && cars.length > 0) {
@@ -64,18 +76,9 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
 
             setUpdatedData(updatedCarsData);
         }
-        console.log('Данные машин из GeneralInformation', cars);
+        // console.log('Данные машин из GeneralInformation', cars);
         // console.log('updatedData', updatedData)
     }, [cars]);
-
-
-
-    useEffect(() => {
-        if (updatedData && updatedData.length > 0) {
-            console.log('updatedData', updatedData)
-            console.log('Группа пользователя', groups[0]['name'])
-        }
-    }, [updatedData]);  // Логируем только когда updatedData изменилось
 
 
     // Функция для открытия формы редактирования
@@ -282,7 +285,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                 controlled_bridge_model: updatedData.controlled_bridge_model || null,
                 service_company: updatedData.service_company || null,
             };
-            console.log("Отправляемые данные: (dataToSend)", dataToSend);
+            // console.log("Отправляемые данные: (dataToSend)", dataToSend);
 
             const response = await fetch(`http://127.0.0.1:8000/api/cars/${editCar.id}/`, {
                 method: 'PATCH',
@@ -293,11 +296,11 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                 },
                 body: JSON.stringify(dataToSend) // Отправляем только ID моделей
             });
-            console.log('Редактируемый автомобиль ID', editCar?.id)
+            // console.log('Редактируемый автомобиль ID', editCar?.id)
             if (response.ok) {
                 // alert('Данные успешно обновлены');
                 const responseData = await response.json();
-                console.log("Данные успешно обновились. Ответ сервера:", responseData);
+                // console.log("Данные успешно обновились. Ответ сервера:", responseData);
                 // const responseText = await response.text()
                 // console.log("Ответ сервера (RAW)", responseText)
                 await fetchCars();
@@ -341,7 +344,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
             const token = localStorage.getItem("access_token");
 
             const dataToSend = { [field]: value };
-            console.log("Отправляем PATCH запрос на эндпоинт", endpoint);
+            // console.log("Отправляем PATCH запрос на эндпоинт", endpoint);
 
             const response = await fetch(endpoint, {
                 method: "PATCH",
@@ -354,7 +357,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
 
             if (response.ok) {
                 const responseData = await response.json();
-                console.log("Ответ сервера:", responseData);
+                // console.log("Ответ сервера:", responseData);
 
                 // 🔥 Обновляем только одно поле в updatedData, а не весь объект!
                 setUpdatedData((prevState) => ({
@@ -389,7 +392,24 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
 
     return (
         <>
-            {isManager && <button onClick={() => setIsModalCreateOpen(true)}>Создать</button>}
+            {isManager &&
+                <button className={'create-car-button'} onClick={() => setIsModalCreateOpen(true)}>Создать Информацию о
+                    Машине</button>}
+
+            <div className="search-elements">
+                <div className="factory-number-elements">
+                    <p className="factory-number-text">Поиск по заводскому номеру машины: </p>
+                    <input
+                        type="text"
+                        className="input-factory-number"
+                        placeholder="Введите номер"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <button className="search-button" onClick={handleSearch}>Поиск</button>
+            </div>
+
 
             <div className="results-container-general-info">
                 {error && <p className="error-message">{error}</p>}
@@ -417,8 +437,8 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                     </tr>
                     </thead>
                     <tbody>
-                    {userCars?.length > 0 ? (
-                        userCars
+                    {filteredCars?.length > 0 ? (
+                        filteredCars
                             .map((car, index) => (
                                 <tr key={car.id ? `car-${car.id}` : `car-index-${index}`}>
                                     <td><span className="number-of-model">Машина № {index + 1}</span> <br/>
@@ -427,7 +447,9 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                                 <button className="change-info-about-car"
                                                         onClick={() => openEditModal(car)}>Изменить
                                                 </button>
-                                                <button className={'delete-info-about-car'} onClick={() => handleDelete(car.id)}>Удалить</button>
+                                                <button className={'delete-info-about-car'}
+                                                        onClick={() => handleDelete(car.id)}>Удалить
+                                                </button>
                                             </div>)}
 
                                     </td>
@@ -851,7 +873,9 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                             >
                                 <option
                                     value="">Текущий покупатель - {updatedData.client_details?.name}</option>
-                                {clients.map(model => (
+                                {clients
+                                    .filter(model => model.name !== 'admin')
+                                    .map(model => (
                                     <option key={model.id} value={model.id}>{model.name}</option>
                                 ))}
                             </select>
@@ -1058,7 +1082,9 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     onChange={handleChangeForCreateCar}
                                 >
                                     <option value="">Выберите покупателя</option>
-                                    {clients.map(model => (
+                                    {clients
+                                        .filter(model => model.name !== 'admin')
+                                        .map(model => (
                                         <option key={model.id} value={model.id}>{model.name}</option>
                                     ))}
                                 </select>

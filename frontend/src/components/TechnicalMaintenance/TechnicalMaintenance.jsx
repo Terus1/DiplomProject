@@ -28,6 +28,9 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
         service_company: "",
     })
     const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filteredUserTechnicalMaintenances, setFilteredUserTechnicalMaintenances] = useState([]);
+
 
     // Функция для открытия модального окна
     const openModal = (type, model) => {
@@ -194,7 +197,7 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                 service_company: updatedData.service_company || null,
             };
 
-            console.log("Отправляемые данные: (dataToSend)", dataToSend);
+            // console.log("Отправляемые данные: (dataToSend)", dataToSend);
 
             const response = await fetch(`http://127.0.0.1:8000/api/technical_maintenances/${editMaintenance.id}/`, {
                 method: 'PATCH',
@@ -206,11 +209,11 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                 body: JSON.stringify(dataToSend) // Отправляем только ID моделей
             });
 
-            console.log('Редактируемое ТО ID', editMaintenance?.id);
+            // console.log('Редактируемое ТО ID', editMaintenance?.id);
 
             if (response.ok) {
                 const responseData = await response.json();
-                console.log("Данные успешно обновились. Ответ сервера:", responseData);
+                // console.log("Данные успешно обновились. Ответ сервера:", responseData);
 
                 await fetchData();
                 closeModal();
@@ -229,7 +232,7 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
             const token = localStorage.getItem("access_token");
 
             const dataToSend = { [field]: value };
-            console.log("Отправляем PATCH запрос на эндпоинт", endpoint);
+            // console.log("Отправляем PATCH запрос на эндпоинт", endpoint);
 
             const response = await fetch(endpoint, {
                 method: "PATCH",
@@ -242,7 +245,7 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
             if (response.ok) {
                 const responseData = await response.json();
-                console.log("Ответ сервера:", responseData);
+                // console.log("Ответ сервера:", responseData);
 
                 // 🔥 Обновляем только одно поле в updatedData, а не весь объект!
                 setUpdatedData((prevState) => ({
@@ -262,12 +265,12 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
     // Функция для обновления поля модели
     const updateField = async (field, value, endpoint) => {
         try {
-            console.log("⏩ updateField отправляет:", { field, value, endpoint });
+            // console.log("⏩ updateField отправляет:", { field, value, endpoint });
 
             const token = localStorage.getItem("access_token");
 
             const dataToSend = { [field]: value };
-            console.log("Отправляем PATCH запрос на эндпоинт", endpoint);
+            // console.log("Отправляем PATCH запрос на эндпоинт", endpoint);
 
             const response = await fetch(endpoint, {
                 method: "PATCH",
@@ -280,7 +283,7 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
             if (response.ok) {
                 const responseData = await response.json();
-                console.log("Ответ сервера:", responseData);
+                // console.log("Ответ сервера:", responseData);
 
                 // 🔥 Обновляем только одно поле в updatedData, а не весь объект!
                 setUpdatedData((prevState) => ({
@@ -310,7 +313,7 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                 to_car: updatedData.to_car || null,
                 service_company: updatedData.service_company || null,
             };
-            console.log("Отправляемые данные: (dataToSend)", dataToSend);
+            // console.log("Отправляемые данные: (dataToSend)", dataToSend);
 
             const response = await fetch(`http://127.0.0.1:8000/api/technical-maintenances/${editTM.id}/`, {
                 method: 'PATCH',
@@ -321,11 +324,11 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                 },
                 body: JSON.stringify(dataToSend) // Отправляем только ID моделей
             });
-            console.log('Редактируемое ТО', editTM?.id)
+            // console.log('Редактируемое ТО', editTM?.id)
             if (response.ok) {
                 // alert('Данные успешно обновлены');
                 const responseData = await response.json();
-                console.log("Данные успешно обновились. Ответ сервера:", responseData);
+                // console.log("Данные успешно обновились. Ответ сервера:", responseData);
                 // const responseText = await response.text()
                 // console.log("Ответ сервера (RAW)", responseText)
                 await fetchData();
@@ -356,9 +359,19 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
             .filter(tm => userCarIds.includes(tm.to_car))
 
         setUserTechnicalMaintenances(filteredMaintenances);
+        setFilteredUserTechnicalMaintenances(filteredMaintenances);
 
-        console.log('ТО пользователя:', filteredMaintenances)
+        // console.log('ТО пользователя:', filteredMaintenances)
     }, [technicalMaintenances, user, cars]);
+
+    const handleSearch = () => {
+        const filtered = userTechnicalMaintenances.filter(tm => {
+            const car = cars.find(car => car.id === tm.to_car);
+            return car && car.machines_factory_number.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+        setFilteredUserTechnicalMaintenances(filtered);
+    };
+
 
     useEffect(() => {
         if (technicalMaintenances && technicalMaintenances.length > 0) {
@@ -373,14 +386,29 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
             setUpdatedData(updatedTMData);
         }
-        console.log('Данные ТО из TechnicalMaintenance', technicalMaintenances);
+        // console.log('Данные ТО из TechnicalMaintenance', technicalMaintenances);
         // console.log('updatedData', updatedData)
     }, [technicalMaintenances]);
 
 
     return (
         <>
-            <button onClick={() => setIsModalCreateOpen(true)}>Создать</button>
+            <div className="search-elements">
+                <div className="factory-number-elements">
+                    <p className="factory-number-text">Поиск по заводскому номеру машины: </p>
+                    <input
+                        type="text"
+                        className="input-factory-number"
+                        placeholder="Введите номер"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <button className="search-button" onClick={handleSearch}>Поиск</button>
+            </div>
+
+            <button className={'create-tm-button'} onClick={() => setIsModalCreateOpen(true)}>Создать информацию о ТО
+            </button>
             <div className="results-container-tm">
                 {error && <p className="error-message">{error}</p>}
 
@@ -399,7 +427,7 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                     </tr>
                     </thead>
                     <tbody>
-                    {userTechnicalMaintenances.map(tm => (
+                    {filteredUserTechnicalMaintenances.map(tm => (
                         <tr key={tm.id}>
                             <td><span className="number-of-model">ТО №: {tm.id}</span>
                                 {isClientOrServiceOrManger ? (<div className={'buttons'}>
@@ -415,11 +443,11 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openWindowForModel(
-                                    'Вид ТО',
-                                    tm.type_of_maintenance_name || 'Не указано',
-                                    tm.type_of_maintenance_description || 'Описание отсутствует'
-                                )}>
+                                        onClick={() => openWindowForModel(
+                                            'Вид ТО',
+                                            tm.type_of_maintenance_name || 'Не указано',
+                                            tm.type_of_maintenance_description || 'Описание отсутствует'
+                                        )}>
 
                                     <span className="object-of-tm">
                                         {tm.type_of_maintenance_name || 'Не указано'}
@@ -429,10 +457,10 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Дата проведения ТО',
-                                    tm.date_of_maintenance || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Дата проведения ТО',
+                                            tm.date_of_maintenance || 'Не указано'
+                                        )}>
                                     <span className="object-of-tm">
                                         {tm.date_of_maintenance || 'Не указано'}
                                     </span>
@@ -442,10 +470,10 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Наработка, м/час',
-                                    tm.to_operating_time || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Наработка, м/час',
+                                            tm.to_operating_time || 'Не указано'
+                                        )}>
                                     <span className="object-of-tm">
                                         {tm.to_operating_time || 'Не указано'}
                                     </span>
@@ -454,10 +482,10 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    '№ заказ-наряда',
-                                    tm.order_number || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            '№ заказ-наряда',
+                                            tm.order_number || 'Не указано'
+                                        )}>
                                     <span className="object-of-tm">
                                         {tm.order_number || 'Не указано'}
                                     </span>
@@ -466,10 +494,10 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Дата заказ-наряда',
-                                    tm.order_date || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Дата заказ-наряда',
+                                            tm.order_date || 'Не указано'
+                                        )}>
                                     <span className="object-of-tm">
                                         {tm.order_date || 'Не указано'}
                                     </span>
@@ -478,11 +506,11 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openWindowForModel(
-                                    'Организация, проводившая ТО',
-                                    tm.organization_carried_out_maintenance_name || 'Не указано',
-                                    tm.organization_carried_out_maintenance_description || 'Описание отсутствует'
-                                )}>
+                                        onClick={() => openWindowForModel(
+                                            'Организация, проводившая ТО',
+                                            tm.organization_carried_out_maintenance_name || 'Не указано',
+                                            tm.organization_carried_out_maintenance_description || 'Описание отсутствует'
+                                        )}>
                                     <span className="object-of-tm">
                                         {tm.organization_carried_out_maintenance_name || 'Не указано'}
                                     </span>
@@ -491,10 +519,10 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Машина (Зав. №)',
-                                    tm.to_car_name || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Машина (Зав. №)',
+                                            tm.to_car_name || 'Не указано'
+                                        )}>
                                     <span className="object-of-tm">
                                         {tm.to_car_name || 'Не указано'}
                                     </span>
@@ -503,11 +531,11 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openWindowForModel(
-                                    'Сервисная компания',
-                                    tm.service_company_name || 'Не указано',
-                                    tm.service_company_description || 'Описание отсутствует'
-                                )}>
+                                        onClick={() => openWindowForModel(
+                                            'Сервисная компания',
+                                            tm.service_company_name || 'Не указано',
+                                            tm.service_company_description || 'Описание отсутствует'
+                                        )}>
                                     <span className="object-of-tm">
                                         {tm.service_company_name || 'Не указано'}
                                     </span>
@@ -552,149 +580,150 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                             value={updatedData.type_of_maintenance || ""}
                             onChange={(e) => {
                                 const selectedId = parseInt(e.target.value, 10);
-                            const selectedModel = typeOfMaintenances.find(model => model.id === selectedId);
+                                const selectedModel = typeOfMaintenances.find(model => model.id === selectedId);
 
-                            setUpdatedData(prevState => ({
-                                ...prevState,
-                                type_of_maintenance: selectedModel || {}
-                            }));
+                                setUpdatedData(prevState => ({
+                                    ...prevState,
+                                    type_of_maintenance: selectedModel || {}
+                                }));
 
-                            if (selectedModel) {
-                                updateField("type_of_maintenance", selectedModel.id, `http://127.0.0.1:8000/api/type_of_maintenances/${selectedModel.id}/`);
-                            }
-                        }}
-                    >
-                        {/* Первая опция для выбора */}
-                        <option value="">Текущий вид ТО
-                            - {updatedData.type_of_maintenance_name}</option>
+                                if (selectedModel) {
+                                    updateField("type_of_maintenance", selectedModel.id, `http://127.0.0.1:8000/api/type_of_maintenances/${selectedModel.id}/`);
+                                }
+                            }}
+                        >
+                            {/* Первая опция для выбора */}
+                            <option value="">Текущий вид ТО
+                                - {updatedData.type_of_maintenance_name}</option>
 
-                        {/* Фильтруем, чтобы текущая модель не отображалась и в списке */}
-                        {typeOfMaintenances
-                            .filter(model => model.id !== updatedData.type_of_maintenance?.id) // Исключаем текущую модель
-                            .map(model => (
-                                <option key={model.id} value={model.id}>
-                                    {model.name}
-                                </option>
+                            {/* Фильтруем, чтобы текущая модель не отображалась и в списке */}
+                            {typeOfMaintenances
+                                .filter(model => model.id !== updatedData.type_of_maintenance?.id) // Исключаем текущую модель
+                                .map(model => (
+                                    <option key={model.id} value={model.id}>
+                                        {model.name}
+                                    </option>
+                                ))}
+                        </select>
+
+
+                        {/* Дата проведения ТО */}
+                        <label>Дата проведения ТО:</label>
+                        <input type="date" name="date_of_maintenance"
+                               value={updatedData.date_of_maintenance || ""} onChange={handleChange}/>
+
+
+                        {/* Наработка, м/час */}
+                        <label>Наработка, м/час:</label>
+                        <input type="text" name="to_operating_time"
+                               value={updatedData.to_operating_time || ""} onChange={handleChange}/>
+
+                        {/* № заказ-наряда */}
+                        <label>№ заказ-наряда:</label>
+                        <input type="text" name="order_number"
+                               value={updatedData.order_number || ""} onChange={handleChange}/>
+
+
+                        <label>Организация, проводившая ТО:</label>
+                        <select
+                            name="organization_carried_out_maintenance"
+                            value={updatedData.organization_carried_out_maintenance || ""}
+                            onChange={(e) => {
+                                const selectedId = parseInt(e.target.value, 10);
+                                const selectedCompany = serviceCompanies.find(company => company.id === selectedId) || null;
+
+                                // console.log("Выбрали ID:", selectedId);
+                                // console.log("Найденный объект:", selectedCompany);
+
+                                setUpdatedData(prevState => ({
+                                    ...prevState,
+                                    organization_carried_out_maintenance: selectedCompany  // Сохраняем объект с ID и именем
+                                }));
+
+                                if (selectedCompany) {
+                                    // console.log("Отправляем updateField с ID:", selectedCompany.id);
+                                    updateField("organization_carried_out_maintenance", selectedCompany.id, `http://127.0.0.1:8000/api/service-companies/${selectedCompany.id}/`);
+                                }
+                            }}
+                        >
+                            <option value="">
+                                Текущая организация проводившая ТО
+                                - {updatedData.organization_carried_out_maintenance_name || "Не выбрано"}
+                            </option>
+                            {serviceCompanies.map(company => (
+                                <option key={company.id} value={company.id}>{company.name}</option>
                             ))}
-                    </select>
+                        </select>
 
 
-                    {/* Дата проведения ТО */}
-                    <label>Дата проведения ТО:</label>
-                    <input type="date" name="date_of_maintenance"
-                           value={updatedData.date_of_maintenance || ""} onChange={handleChange}/>
+                        <label>Машина (Зав. №):</label>
+                        <select
+                            name="to_car"
+                            value={updatedData.to_car || ""}
+                            onChange={(e) => {
+                                const selectedId = parseInt(e.target.value, 10);
+                                const selectedModel = cars.find(car => car.id === selectedId) || null;
+
+                                // console.log("Выбрали ID:", selectedId);
+                                // console.log("Найденный объект:", selectedModel);
+
+                                setUpdatedData(prevState => ({
+                                    ...prevState,
+                                    to_car: selectedId || null
+                                }));
+
+                                if (selectedModel) {
+                                    // console.log("Отправляем updateField с ID:", selectedModel.id);
+                                    updateField("to_car", selectedModel.id, `http://127.0.0.1:8000/api/cars/${selectedModel.id}/`);
+                                }
+                            }}
+                        >
+                            <option value="">Текущая машина (Зав. №)
+                                - {updatedData.to_car_name}</option>
+                            {cars
+                                .filter(car => car.client_details === user.nickname)
+                                .map(company => (
+                                    <option key={company.id}
+                                            value={company.id}>{company.machines_factory_number}</option>
+                                ))}
+                        </select>
 
 
-                    {/* Наработка, м/час */}
-                    <label>Наработка, м/час:</label>
-                    <input type="text" name="to_operating_time"
-                           value={updatedData.to_operating_time || ""} onChange={handleChange}/>
+                        <label>Сервисная компания:</label>
+                        <select
+                            name="service_company"
+                            value={updatedData.service_company?.id || ""}
+                            onChange={(e) => {
+                                const selectedId = parseInt(e.target.value, 10);
+                                const selectedModel = serviceCompanies.find(company => company.id === selectedId) || null;
 
-                    {/* № заказ-наряда */}
-                    <label>№ заказ-наряда:</label>
-                    <input type="text" name="order_number"
-                           value={updatedData.order_number || ""} onChange={handleChange}/>
+                                // console.log("Выбрали ID:", selectedId);
+                                // console.log("Найденный объект:", selectedModel);
 
+                                setUpdatedData(prevState => ({
+                                    ...prevState,
+                                    service_company: selectedId || null
+                                }));
 
-                    <label>Организация, проводившая ТО:</label>
-                    <select
-                        name="organization_carried_out_maintenance"
-                        value={updatedData.organization_carried_out_maintenance || ""}
-                        onChange={(e) => {
-                            const selectedId = parseInt(e.target.value, 10);
-                            const selectedCompany = serviceCompanies.find(company => company.id === selectedId) || null;
+                                if (selectedModel) {
+                                    // console.log("Отправляем updateField с ID:", selectedModel.id);
+                                    updateField("service_company", selectedModel.id, `http://127.0.0.1:8000/api/service-companies/${selectedModel.id}/`);
+                                }
+                            }}
+                        >
+                            <option value="">Текущая сервисная компания
+                                - {updatedData.service_company_name}</option>
+                            {serviceCompanies.map(company => (
+                                <option key={company.id} value={company.id}>{company.name}</option>
+                            ))}
+                        </select>
 
-                            console.log("Выбрали ID:", selectedId);
-                            console.log("Найденный объект:", selectedCompany);
+                        <button onClick={updateTO}>Сохранить</button>
+                        <button className={'close-btn'} onClick={closeModal}>Отмена</button>
 
-                            setUpdatedData(prevState => ({
-                                ...prevState,
-                                organization_carried_out_maintenance: selectedCompany  // Сохраняем объект с ID и именем
-                            }));
+                    </div>
 
-                            if (selectedCompany) {
-                                console.log("Отправляем updateField с ID:", selectedCompany.id);
-                                updateField("organization_carried_out_maintenance", selectedCompany.id, `http://127.0.0.1:8000/api/service-companies/${selectedCompany.id}/`);
-                            }
-                        }}
-                    >
-                        <option value="">
-                            Текущая организация проводившая ТО
-                            - {updatedData.organization_carried_out_maintenance_name || "Не выбрано"}
-                        </option>
-                        {serviceCompanies.map(company => (
-                            <option key={company.id} value={company.id}>{company.name}</option>
-                        ))}
-                    </select>
-
-
-                    <label>Машина (Зав. №):</label>
-                    <select
-                        name="to_car"
-                        value={updatedData.to_car || ""}
-                        onChange={(e) => {
-                            const selectedId = parseInt(e.target.value, 10);
-                            const selectedModel = cars.find(car => car.id === selectedId) || null;
-
-                            console.log("Выбрали ID:", selectedId);
-                            console.log("Найденный объект:", selectedModel);
-
-                            setUpdatedData(prevState => ({
-                                ...prevState,
-                                to_car: selectedId || null
-                            }));
-
-                            if (selectedModel) {
-                                console.log("Отправляем updateField с ID:", selectedModel.id);
-                                updateField("to_car", selectedModel.id, `http://127.0.0.1:8000/api/cars/${selectedModel.id}/`);
-                            }
-                        }}
-                    >
-                        <option value="">Текущая машина (Зав. №)
-                            - {updatedData.to_car_name}</option>
-                        {cars
-                            .filter(car => car.client_details === user.nickname)
-                            .map(company => (
-                            <option key={company.id} value={company.id}>{company.machines_factory_number}</option>
-                        ))}
-                    </select>
-
-
-                    <label>Сервисная компания:</label>
-                    <select
-                        name="service_company"
-                        value={updatedData.service_company?.id || ""}
-                        onChange={(e) => {
-                            const selectedId = parseInt(e.target.value, 10);
-                            const selectedModel = serviceCompanies.find(company => company.id === selectedId) || null;
-
-                            console.log("Выбрали ID:", selectedId);
-                            console.log("Найденный объект:", selectedModel);
-
-                            setUpdatedData(prevState => ({
-                                ...prevState,
-                                service_company: selectedId || null
-                            }));
-
-                            if (selectedModel) {
-                                console.log("Отправляем updateField с ID:", selectedModel.id);
-                                updateField("service_company", selectedModel.id, `http://127.0.0.1:8000/api/service-companies/${selectedModel.id}/`);
-                            }
-                        }}
-                    >
-                        <option value="">Текущая сервисная компания
-                            - {updatedData.service_company_name}</option>
-                        {serviceCompanies.map(company => (
-                            <option key={company.id} value={company.id}>{company.name}</option>
-                        ))}
-                    </select>
-
-                    <button onClick={updateTO}>Сохранить</button>
-                    <button className={'close-btn'} onClick={closeModal}>Отмена</button>
-
-                </div>
-
-            </div>)
+                </div>)
                 || isModalCreateOpen && (
                     <div className="modal-overlay">
                         <div className="modal">
@@ -784,10 +813,10 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                                     {cars
                                         .filter(car => car.client_details === user.nickname)
                                         .map(car => (
-                                        <option key={car.id} value={car.id}>
-                                            {car.machines_factory_number}
-                                        </option>
-                                    ))}
+                                            <option key={car.id} value={car.id}>
+                                                {car.machines_factory_number}
+                                            </option>
+                                        ))}
                                 </select>
 
                                 {/* Сервисная компания */}

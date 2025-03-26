@@ -14,7 +14,16 @@
 
 
 .results-container-complaint {
+    margin-top: 3rem;
     width: 100%;
+}
+
+.create-complaint-button {
+    margin-top: 20px;
+    width: 100%;
+    height: 40px;
+    font-family: 'PT Astra Sans', sans-serif;
+    font-size: 20px;
 }
 
 /* Таблица */

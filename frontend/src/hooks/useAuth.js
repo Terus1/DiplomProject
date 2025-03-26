@@ -32,7 +32,7 @@ const useAuth = () => {
 
       const data = await response.json();
       localStorage.setItem("access_token", data.access);
-      console.log("✅ Токен обновлен!");
+      // console.log("✅ Токен обновлен!");
       return data.access;
     } catch (error) {
       console.error("❌ Ошибка сети при обновлении токена", error);

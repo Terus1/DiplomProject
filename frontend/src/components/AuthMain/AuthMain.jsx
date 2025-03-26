@@ -30,7 +30,7 @@ function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoa
             const response = await axios.get("http://127.0.0.1:8000/api/cars/", {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            console.log("Данные машин из AutMain", response.data);
+            // console.log("Данные машин из AutMain", response.data);
             setCars(response.data);
             setError(null);
 

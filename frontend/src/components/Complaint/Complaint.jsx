@@ -31,6 +31,9 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
         service_company: "",
     })
     const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filteredUserComplaints, setFilteredUserComplaints] = useState([]);
+
 
 
     // Функция для открытия модального окна
@@ -234,7 +237,7 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
             const token = localStorage.getItem("access_token");
 
             const dataToSend = { [field]: value };
-            console.log("Отправляем PATCH запрос на эндпоинт", endpoint);
+            // console.log("Отправляем PATCH запрос на эндпоинт", endpoint);
 
             const response = await fetch(endpoint, {
                 method: "PATCH",
@@ -247,7 +250,7 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
             if (response.ok) {
                 const responseData = await response.json();
-                console.log("Ответ сервера:", responseData);
+                // console.log("Ответ сервера:", responseData);
 
                 // 🔥 Обновляем только одно поле в updatedData, а не весь объект!
                 setUpdatedData((prevState) => ({
@@ -282,7 +285,7 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
             if (response.ok) {
                 const responseData = await response.json();
-                console.log("✅ Успешно обновлено:", responseData);
+                // console.log("✅ Успешно обновлено:", responseData);
 
 
                 setUpdatedData((prevState) => ({
@@ -303,7 +306,7 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
     // Функция сохранения измененных данных ТО
     const updateComplaint = async () => {
-        console.log('Текущие данные для отправки', updatedData)
+        // console.log('Текущие данные для отправки', updatedData)
         try {
             const token = localStorage.getItem('access_token');
             // console.log("Проверяем данные перед отправкой:");
@@ -319,7 +322,7 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
                 complaint_car: updatedData.complaint_car|| null,
                 service_company: updatedData.service_company || null,
             };
-            console.log("Финальные данные перед отправкой:", dataToSend);
+            // console.log("Финальные данные перед отправкой:", dataToSend);
 
 
             const response = await fetch(`http://127.0.0.1:8000/api/complaints/${editComplaint.id}/`, {
@@ -331,11 +334,11 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
                 },
                 body: JSON.stringify(dataToSend) // Отправляем только ID моделей
             });
-            console.log('Редактируемая рекламация', editComplaint?.id)
+            // console.log('Редактируемая рекламация', editComplaint?.id)
             if (response.ok) {
                 // alert('Данные успешно обновлены');
                 const responseData = await response.json();
-                console.log("Данные успешно обновились. Ответ сервера:", responseData);
+                // console.log("Данные успешно обновились. Ответ сервера:", responseData);
                 // const responseText = await response.text()
                 // console.log("Ответ сервера (RAW)", responseText)
                 await fetchData();
@@ -366,18 +369,44 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
         const filteredComplaints = complaints
             .filter(complaint => userCarIds.includes(complaint.complaint_car))
 
-        setUserComplaints(filteredComplaints)
-        console.log('Рекламации пользователя', filteredComplaints)
+        setUserComplaints(filteredComplaints);
+        setFilteredUserComplaints(filteredComplaints);
+        // console.log('Рекламации пользователя', filteredComplaints)
         // console.log('Способы восстановления:', recoveryMethods, 'Машины:', cars, 'Сервисная компания', serviceCompanies)
     }, [complaints, user, cars, recoveryMethods, serviceCompanies]);
 
 
+    const handleSearch = () => {
+        const filtered = userComplaints.filter(complaint => {
+            const car = cars.find(car => car.id === complaint.complaint_car);
+            return car && car.machines_factory_number.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+        setFilteredUserComplaints(filtered);
+    };
+
+
     return (
         <>
-            {isManagerOrServiceCompany && <button onClick={() => setIsModalCreateOpen(true)}>Создать</button>}
+            {isManagerOrServiceCompany &&
+                <button className={'create-complaint-button'} onClick={() => setIsModalCreateOpen(true)}>Создать
+                    информацию о Рекламации</button>}
+
+            <div className="search-elements">
+                <div className="factory-number-elements">
+                    <p className="factory-number-text">Поиск по заводскому номеру машины: </p>
+                    <input
+                        type="text"
+                        className="input-factory-number"
+                        placeholder="Введите номер"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <button className="search-button" onClick={handleSearch}>Поиск</button>
+            </div>
 
             <div className="results-container-complaint">
-            {error && <p className="error-message">{error}</p>}
+                {error && <p className="error-message">{error}</p>}
 
                 <table className="table-results-complaint">
                     <thead>
@@ -396,7 +425,7 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
                     </tr>
                     </thead>
                     <tbody>
-                    {userComplaints.map(complaint => (
+                    {filteredUserComplaints.map(complaint => (
 
                         <tr key={complaint.id}>
                             <td>{complaint.id}
@@ -406,17 +435,19 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
                                                     onClick={() => openEditModal(complaint)}>Изменить
                                             </button>
 
-                                            <button className={'delete-info-about-complaint'} onClick={() => handleDelete(complaint.id)}>Удалить</button>
+                                            <button className={'delete-info-about-complaint'}
+                                                    onClick={() => handleDelete(complaint.id)}>Удалить
+                                            </button>
                                         </div>
 
                                     ) : <></>}
                             </td>
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Дата отказа',
-                                    complaint.date_of_refusal || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Дата отказа',
+                                            complaint.date_of_refusal || 'Не указано'
+                                        )}>
                                     <span className="info-about-complaint">
                                         {complaint.date_of_refusal || 'Не указано'}
                                     </span>
@@ -425,10 +456,10 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Наработка, м/час',
-                                    complaint.complaint_operating_time || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Наработка, м/час',
+                                            complaint.complaint_operating_time || 'Не указано'
+                                        )}>
                                     <span className="info-about-complaint">
                                         {complaint.complaint_operating_time || 'Не указано'}
                                     </span>
@@ -437,11 +468,11 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openWindowForModel(
-                                    'Узел отказа',
-                                    complaint.failure_node_name || 'Не указано',
-                                    complaint.description_of_failure || 'Описание отсутствует'
-                                )}>
+                                        onClick={() => openWindowForModel(
+                                            'Узел отказа',
+                                            complaint.failure_node_name || 'Не указано',
+                                            complaint.description_of_failure || 'Описание отсутствует'
+                                        )}>
                                     <span className="info-about-complaint">
                                         {complaint.failure_node_name || 'Не указано'}
                                     </span>
@@ -450,11 +481,11 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openWindowForModel(
-                                    'Способ восстановления',
-                                    complaint.recovery_method_name || 'Не указано',
-                                    complaint.recovery_method_description || 'Описание отсутствует',
-                                )}>
+                                        onClick={() => openWindowForModel(
+                                            'Способ восстановления',
+                                            complaint.recovery_method_name || 'Не указано',
+                                            complaint.recovery_method_description || 'Описание отсутствует',
+                                        )}>
                                     <span className="info-about-complaint">
                                         {complaint.recovery_method_name || 'Не указано'}
                                     </span>
@@ -463,10 +494,10 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Используемые запасные части',
-                                    complaint.used_spare_parts || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Используемые запасные части',
+                                            complaint.used_spare_parts || 'Не указано'
+                                        )}>
                                     <span className="info-about-complaint">
                                         {complaint.used_spare_parts || 'Не указано'}
                                     </span>
@@ -475,10 +506,10 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Время простоя техники',
-                                    complaint.equipment_downtime || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Время простоя техники',
+                                            complaint.equipment_downtime || 'Не указано'
+                                        )}>
                                     <span className="info-about-complaint">
                                         {complaint.equipment_downtime || 'Не указано'}
                                     </span>
@@ -487,10 +518,10 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Дата восстановления',
-                                    complaint.date_of_restoration || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Дата восстановления',
+                                            complaint.date_of_restoration || 'Не указано'
+                                        )}>
                                     <span className="info-about-complaint">
                                         {complaint.date_of_restoration || 'Не указано'}
                                     </span>
@@ -499,10 +530,10 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openModal(
-                                    'Машина (Зав. №)',
-                                    complaint.complaint_car_name || 'Не указано'
-                                )}>
+                                        onClick={() => openModal(
+                                            'Машина (Зав. №)',
+                                            complaint.complaint_car_name || 'Не указано'
+                                        )}>
                                     <span className="info-about-complaint">
                                         {complaint.complaint_car_name || 'Не указано'}
                                     </span>
@@ -511,11 +542,11 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
                             <td>
                                 <button className="button-info"
-                                onClick={() => openWindowForModel(
-                                    'Cервисная компания',
-                                    complaint.service_company_name || 'Не указано',
-                                    complaint.service_company_description || 'Описание отсутствует'
-                                )}>
+                                        onClick={() => openWindowForModel(
+                                            'Cервисная компания',
+                                            complaint.service_company_name || 'Не указано',
+                                            complaint.service_company_description || 'Описание отсутствует'
+                                        )}>
                                     <span className="info-about-complaint">
                                         {complaint.service_company_name || 'Не указано'}
                                     </span>
@@ -529,7 +560,7 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
                 </table>
             </div>
 
-            { isModalOpen && (<div className={'modal-overlay'}>
+            {isModalOpen && (<div className={'modal-overlay'}>
                     <div className="modal">
                         <p className={'model'}>{modalType}: <br/><span
                             className={'name-of-model'}>{selectedModel}</span></p>
@@ -556,295 +587,299 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
 
 
                         {/* Наработка, м/час */}
-                    <label>Наработка, м/час:</label>
-                    <input type="text" name="complaint_operating_time"
-                           value={updatedData.complaint_operating_time || ""} onChange={handleChange}/>
+                        <label>Наработка, м/час:</label>
+                        <input type="text" name="complaint_operating_time"
+                               value={updatedData.complaint_operating_time || ""} onChange={handleChange}/>
 
 
-                    <label>Узел отказа:</label>
-                    <select
-                        name="failure_node"
-                        value={updatedData.failure_node || ""}
-                        onChange={(e) => {
-                            const selectedId = parseInt(e.target.value, 10);
-                            const selectedModel = failureNodes.find(node => node.id === selectedId) || null;
+                        <label>Узел отказа:</label>
+                        <select
+                            name="failure_node"
+                            value={updatedData.failure_node || ""}
+                            onChange={(e) => {
+                                const selectedId = parseInt(e.target.value, 10);
+                                const selectedModel = failureNodes.find(node => node.id === selectedId) || null;
 
-                            console.log("Выбрали failure_node ID:", selectedId);
-                            console.log("Найденный объект:", selectedModel);
+                                // console.log("Выбрали failure_node ID:", selectedId);
+                                // console.log("Найденный объект:", selectedModel);
 
-                            setUpdatedData(prevState => ({
-                                ...prevState,
-                                failure_node: selectedModel  // Сохраняем объект с ID и именем
-                            }));
+                                setUpdatedData(prevState => ({
+                                    ...prevState,
+                                    failure_node: selectedModel  // Сохраняем объект с ID и именем
+                                }));
 
-                            if (selectedModel) {
-                                console.log('Отправляем failure_node с ID', selectedModel.id);
-                                updateField('failure_node', selectedModel.id, `http://127.0.0.1:8000/api/failure_nodes/${selectedModel.id}/`)
-                        }}}
+                                if (selectedModel) {
+                                    // console.log('Отправляем failure_node с ID', selectedModel.id);
+                                    updateField('failure_node', selectedModel.id, `http://127.0.0.1:8000/api/failure_nodes/${selectedModel.id}/`)
+                                }
+                            }}
 
-                    >
-                        <option value="">
-                            Текущий узел отказа
-                            - {updatedData.failure_node_name || "Не выбрано"}
-                        </option>
-                        {failureNodes.map(node => (
-                            <option key={node.id} value={node.id}>{node.name}</option>
-                        ))}
-                    </select>
+                        >
+                            <option value="">
+                                Текущий узел отказа
+                                - {updatedData.failure_node_name || "Не выбрано"}
+                            </option>
+                            {failureNodes.map(node => (
+                                <option key={node.id} value={node.id}>{node.name}</option>
+                            ))}
+                        </select>
 
-                    {/* Описание отказа */}
-                    <label>Описание отказа:</label>
-                    <input type="text" name="description_of_failure"
-                           value={updatedData.description_of_failure || ""} onChange={handleChange}/>
-
-
-                    <label>Способ восстановления:</label>
-                    <select
-                        name="recovery_method"
-                        value={updatedData.recovery_method || ""}
-                        onChange={(e) => {
-                            const selectedId = parseInt(e.target.value, 10);
-                            const selectedModel = recoveryMethods.find(method => method.id === selectedId) || null;
-
-                            console.log("Выбрали recovery_method ID:", selectedId);
-                            console.log("Найденный объект:", selectedModel);
-
-                            setUpdatedData(prevState => ({
-                                ...prevState,
-                                recovery_method: selectedModel  // Сохраняем объект с ID и именем
-                            }));
-
-                            if (selectedModel) {
-                                console.log('Отправляем recovery_method с ID:', selectedModel.id);
-                                updateField('recovery_method', selectedModel.id,  `http://127.0.0.1:8000/api/recovery_methods/${selectedModel.id}/`)
-                            }
-                        }}
-                    >
-                        <option value="">
-                            Текущий способ восстановления
-                            - {updatedData.recovery_method_name || "Не выбрано"}
-                        </option>
-                        {recoveryMethods.map(method => (
-                            <option key={method.id} value={method.id}>{method.name}</option>
-                        ))}
-                    </select>
+                        {/* Описание отказа */}
+                        <label>Описание отказа:</label>
+                        <input type="text" name="description_of_failure"
+                               value={updatedData.description_of_failure || ""} onChange={handleChange}/>
 
 
-                    {/* Используемые запасные части */}
-                    <label>Используемые запасные части:</label>
-                    <input type="text" name="used_spare_parts"
-                           value={updatedData.used_spare_parts || ""} onChange={handleChange}/>
+                        <label>Способ восстановления:</label>
+                        <select
+                            name="recovery_method"
+                            value={updatedData.recovery_method || ""}
+                            onChange={(e) => {
+                                const selectedId = parseInt(e.target.value, 10);
+                                const selectedModel = recoveryMethods.find(method => method.id === selectedId) || null;
+
+                                // console.log("Выбрали recovery_method ID:", selectedId);
+                                // console.log("Найденный объект:", selectedModel);
+
+                                setUpdatedData(prevState => ({
+                                    ...prevState,
+                                    recovery_method: selectedModel  // Сохраняем объект с ID и именем
+                                }));
+
+                                if (selectedModel) {
+                                    // console.log('Отправляем recovery_method с ID:', selectedModel.id);
+                                    updateField('recovery_method', selectedModel.id, `http://127.0.0.1:8000/api/recovery_methods/${selectedModel.id}/`)
+                                }
+                            }}
+                        >
+                            <option value="">
+                                Текущий способ восстановления
+                                - {updatedData.recovery_method_name || "Не выбрано"}
+                            </option>
+                            {recoveryMethods.map(method => (
+                                <option key={method.id} value={method.id}>{method.name}</option>
+                            ))}
+                        </select>
 
 
-                    {/* Дата восстановления */}
-                    <label>Дата восстановления:</label>
-                    <input type="date" name="date_of_restoration"
-                           value={updatedData.date_of_restoration || ""} onChange={handleChange}/>
+                        {/* Используемые запасные части */}
+                        <label>Используемые запасные части:</label>
+                        <input type="text" name="used_spare_parts"
+                               value={updatedData.used_spare_parts || ""} onChange={handleChange}/>
 
 
-                    {/* Время простоя техники */}
-                    <label>Время простоя техники:</label>
-                    <input type="text" name="equipment_downtime"
-                           value={updatedData.equipment_downtime || ""} onChange={handleChange}/>
+                        {/* Дата восстановления */}
+                        <label>Дата восстановления:</label>
+                        <input type="date" name="date_of_restoration"
+                               value={updatedData.date_of_restoration || ""} onChange={handleChange}/>
 
 
-                    <label>Машина (Зав. №):</label>
-                    <select
-                        name="complaint_car"
-                        value={updatedData.complaint_car || ""}
-                        onChange={(e) => {
-                            const selectedId = parseInt(e.target.value, 10);
-                            const selectedModel = cars.find(car => car.id === selectedId) || null;
-
-                            console.log("Выбрали complaint_car ID:", selectedId);
-                            console.log("Найденный объект:", selectedModel);
-
-                            setUpdatedData(prevState => ({
-                                ...prevState,
-                                complaint_car: selectedModel  // Сохраняем объект с ID и именем
-                            }));
-
-                            if (selectedModel) {
-                                console.log('Отправляем complaint_car с ID:', selectedModel.id);
-                                updateField('complaint_car', selectedModel.id,  `http://127.0.0.1:8000/api/cars/${selectedModel.id}/`)
-                            }
-
-                        }}
-                    >
-                        <option value="">
-                            Текущая машина
-                            - {updatedData.complaint_car_name || "Не выбрано"}
-                        </option>
-                        {cars
-                            .filter(car => car.client_details === user.nickname)
-                            .map(car => (
-                            <option key={car.id} value={car.id}>{car.machines_factory_number}</option>
-                        ))}
-                    </select>
+                        {/* Время простоя техники */}
+                        <label>Время простоя техники:</label>
+                        <input type="text" name="equipment_downtime"
+                               value={updatedData.equipment_downtime || ""} onChange={handleChange}/>
 
 
-                    <label>Сервисная компания:</label>
-                    <select
-                        name="service_company"
-                        value={updatedData.service_company || ""}
-                        onChange={(e) => {
-                            const selectedId = parseInt(e.target.value, 10);
-                            const selectedModel = serviceCompanies.find(company => company.id === selectedId) || null;
+                        <label>Машина (Зав. №):</label>
+                        <select
+                            name="complaint_car"
+                            value={updatedData.complaint_car || ""}
+                            onChange={(e) => {
+                                const selectedId = parseInt(e.target.value, 10);
+                                const selectedModel = cars.find(car => car.id === selectedId) || null;
 
-                            console.log("Выбрали service_company ID:", selectedId);
-                            console.log("Найденный объект:", selectedModel);
+                                // console.log("Выбрали complaint_car ID:", selectedId);
+                                // console.log("Найденный объект:", selectedModel);
 
-                            setUpdatedData(prevState => ({
-                                ...prevState,
-                                service_company: selectedModel
-                            }));
+                                setUpdatedData(prevState => ({
+                                    ...prevState,
+                                    complaint_car: selectedModel  // Сохраняем объект с ID и именем
+                                }));
 
-                            if (selectedModel) {
-                                console.log('Отправляем service_company с ID:', selectedModel.id);
-                                updateField('service_company', selectedModel.id, `http://127.0.0.1:8000/api/service-companies/${selectedModel.id}/`)
-                            }
-                            
-                        }}
-                    >
-                        <option value="">Текущая сервисная компания
-                            - {updatedData.service_company_name}</option>
-                        {serviceCompanies.map(company => (
-                            <option key={company.id} value={company.id}>{company.name}</option>
-                        ))}
-                    </select>
+                                if (selectedModel) {
+                                    // console.log('Отправляем complaint_car с ID:', selectedModel.id);
+                                    updateField('complaint_car', selectedModel.id, `http://127.0.0.1:8000/api/cars/${selectedModel.id}/`)
+                                }
 
-                    <button onClick={updateComplaint}>Сохранить</button>
-                    <button className={'close-btn'} onClick={closeModal}>Отмена</button>
-
-                </div>
-
-            </div>)
-                || isModalCreateOpen && (
-                    <div className={'modal-overlay'}>
-                    <div className="modal">
-                        <form onSubmit={handleSubmit} className={'form-for-create-car'}>
-
-
-                            <h2>Добавить новую Рекламацию</h2>
-
-                            {/* Дата отказа */}
-                            <label>Дата отказа:</label>
-                            <input type="date" name={'date_of_refusal'} value={newComplaint.date_of_refusal || ""}
-                            onChange={handleChangeForCreateComplaint}/>
-
-
-                            {/* Наработка, м/час */}
-                            <label>Наработка, м/час:</label>
-                            <input
-                                type="text"
-                                name="complaint_operating_time"
-                                value={newComplaint.complaint_operating_time ?? ""}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (/^\d*$/.test(value)) { // Только цифры
-                                        setNewComplaint(prev => ({
-                                            ...prev,
-                                            complaint_operating_time: value // Храним как строку
-                                        }));
-                                    }
-                                }}
-                            />
-
-                            {/* Узел отказа */}
-                            <label>Узел отказа:</label>
-                            <select
-                                name="failure_node"
-                                value={newComplaint.failure_node || ""}
-                                onChange={handleChangeForCreateComplaint}
-                            >
-                                <option value="">Выберите узел отказа</option>
-                                {failureNodes.map(model => (
-                                    <option key={model.id} value={model.id}>{model.name}</option>
+                            }}
+                        >
+                            <option value="">
+                                Текущая машина
+                                - {updatedData.complaint_car_name || "Не выбрано"}
+                            </option>
+                            {cars
+                                .filter(car => car.client_details === user.nickname)
+                                .map(car => (
+                                    <option key={car.id} value={car.id}>{car.machines_factory_number}</option>
                                 ))}
-                            </select>
-
-                            {/* Описание отказа */}
-                            <label>Описание отказа:</label>
-                            <input type="text" name={'description_of_failure'} value={newComplaint.description_of_failure || ""}
-                                   onChange={handleChangeForCreateComplaint}/>
-
-                            {/* Способ восстановления */}
-                            <label>Способ восстановления:</label>
-                            <select
-                                name="recovery_method"
-                                value={newComplaint.recovery_method || ""}
-                                onChange={handleChangeForCreateComplaint}
-                            >
-                                <option value="">Выберите способ восстановления</option>
-                                {recoveryMethods.map(model => (
-                                    <option key={model.id} value={model.id}>{model.name}</option>
-                                ))}
-                            </select>
-
-                            {/* Используемые запасные части */}
-                            <label>Используемые запасные части:</label>
-                            <input type="text" name="used_spare_parts"
-                                   value={newComplaint.used_spare_parts || ""}
-                                   onChange={handleChangeForCreateComplaint}/>
+                        </select>
 
 
-                            {/* Дата восстановления */}
-                            <label>Дата восстановления:</label>
-                            <input type="date" name={'date_of_restoration'} value={newComplaint.date_of_restoration || ""}
-                                   onChange={handleChangeForCreateComplaint}/>
+                        <label>Сервисная компания:</label>
+                        <select
+                            name="service_company"
+                            value={updatedData.service_company || ""}
+                            onChange={(e) => {
+                                const selectedId = parseInt(e.target.value, 10);
+                                const selectedModel = serviceCompanies.find(company => company.id === selectedId) || null;
 
-                            {/* Время простоя техники */}
-                            <label>Время простоя техники:</label>
-                            <input
-                                type="text"
-                                name="equipment_downtime"
-                                value={newComplaint.equipment_downtime ?? ""}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (/^\d*$/.test(value)) { // Только цифры
-                                        setNewComplaint(prev => ({
-                                            ...prev,
-                                            equipment_downtime: value // Храним как строку
-                                        }));
-                                    }
-                                }}
-                            />
+                                // console.log("Выбрали service_company ID:", selectedId);
+                                // console.log("Найденный объект:", selectedModel);
 
-                            {/* Машина (Зав. №) */}
-                            <label>Машина (Зав. №):</label>
-                            <select
-                                name="complaint_car"
-                                value={newComplaint.complaint_car || ""}
-                                onChange={handleChangeForCreateComplaint}
-                            >
-                                <option value="">Выберите зав. № машины</option>
-                                {cars
-                                    .filter(car => car.client_details === user.nickname)
-                                    .map(model => (
-                                    <option key={model.id} value={model.id}>{model.machines_factory_number}</option>
-                                ))}
-                            </select>
+                                setUpdatedData(prevState => ({
+                                    ...prevState,
+                                    service_company: selectedModel
+                                }));
 
-                            <label>Сервисная компания:</label>
-                            <select
-                                name="service_company"
-                                value={newComplaint.service_company || ""}
-                                onChange={handleChangeForCreateComplaint}
-                            >
-                                <option value="">Выберите сервисную компанию</option>
-                                {serviceCompanies.map(model => (
-                                    <option key={model.id} value={model.id}>{model.name}</option>
-                                ))}
-                            </select>
+                                if (selectedModel) {
+                                    // console.log('Отправляем service_company с ID:', selectedModel.id);
+                                    updateField('service_company', selectedModel.id, `http://127.0.0.1:8000/api/service-companies/${selectedModel.id}/`)
+                                }
 
-                            <button type={'submit'}>Создать</button>
-                        </form>
+                            }}
+                        >
+                            <option value="">Текущая сервисная компания
+                                - {updatedData.service_company_name}</option>
+                            {serviceCompanies.map(company => (
+                                <option key={company.id} value={company.id}>{company.name}</option>
+                            ))}
+                        </select>
 
-                        <button className={'close-btn'} onClick={() => setIsModalCreateOpen(false)}>Отмена</button>
+                        <button onClick={updateComplaint}>Сохранить</button>
+                        <button className={'close-btn'} onClick={closeModal}>Отмена</button>
 
                     </div>
 
-                </div>)}
+                </div>)
+                || isModalCreateOpen && (
+                    <div className={'modal-overlay'}>
+                        <div className="modal">
+                            <form onSubmit={handleSubmit} className={'form-for-create-car'}>
+
+
+                                <h2>Добавить новую Рекламацию</h2>
+
+                                {/* Дата отказа */}
+                                <label>Дата отказа:</label>
+                                <input type="date" name={'date_of_refusal'} value={newComplaint.date_of_refusal || ""}
+                                       onChange={handleChangeForCreateComplaint}/>
+
+
+                                {/* Наработка, м/час */}
+                                <label>Наработка, м/час:</label>
+                                <input
+                                    type="text"
+                                    name="complaint_operating_time"
+                                    value={newComplaint.complaint_operating_time ?? ""}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^\d*$/.test(value)) { // Только цифры
+                                            setNewComplaint(prev => ({
+                                                ...prev,
+                                                complaint_operating_time: value // Храним как строку
+                                            }));
+                                        }
+                                    }}
+                                />
+
+                                {/* Узел отказа */}
+                                <label>Узел отказа:</label>
+                                <select
+                                    name="failure_node"
+                                    value={newComplaint.failure_node || ""}
+                                    onChange={handleChangeForCreateComplaint}
+                                >
+                                    <option value="">Выберите узел отказа</option>
+                                    {failureNodes.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                {/* Описание отказа */}
+                                <label>Описание отказа:</label>
+                                <input type="text" name={'description_of_failure'}
+                                       value={newComplaint.description_of_failure || ""}
+                                       onChange={handleChangeForCreateComplaint}/>
+
+                                {/* Способ восстановления */}
+                                <label>Способ восстановления:</label>
+                                <select
+                                    name="recovery_method"
+                                    value={newComplaint.recovery_method || ""}
+                                    onChange={handleChangeForCreateComplaint}
+                                >
+                                    <option value="">Выберите способ восстановления</option>
+                                    {recoveryMethods.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                {/* Используемые запасные части */}
+                                <label>Используемые запасные части:</label>
+                                <input type="text" name="used_spare_parts"
+                                       value={newComplaint.used_spare_parts || ""}
+                                       onChange={handleChangeForCreateComplaint}/>
+
+
+                                {/* Дата восстановления */}
+                                <label>Дата восстановления:</label>
+                                <input type="date" name={'date_of_restoration'}
+                                       value={newComplaint.date_of_restoration || ""}
+                                       onChange={handleChangeForCreateComplaint}/>
+
+                                {/* Время простоя техники */}
+                                <label>Время простоя техники:</label>
+                                <input
+                                    type="text"
+                                    name="equipment_downtime"
+                                    value={newComplaint.equipment_downtime ?? ""}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^\d*$/.test(value)) { // Только цифры
+                                            setNewComplaint(prev => ({
+                                                ...prev,
+                                                equipment_downtime: value // Храним как строку
+                                            }));
+                                        }
+                                    }}
+                                />
+
+                                {/* Машина (Зав. №) */}
+                                <label>Машина (Зав. №):</label>
+                                <select
+                                    name="complaint_car"
+                                    value={newComplaint.complaint_car || ""}
+                                    onChange={handleChangeForCreateComplaint}
+                                >
+                                    <option value="">Выберите зав. № машины</option>
+                                    {cars
+                                        .filter(car => car.client_details === user.nickname)
+                                        .map(model => (
+                                            <option key={model.id}
+                                                    value={model.id}>{model.machines_factory_number}</option>
+                                        ))}
+                                </select>
+
+                                <label>Сервисная компания:</label>
+                                <select
+                                    name="service_company"
+                                    value={newComplaint.service_company || ""}
+                                    onChange={handleChangeForCreateComplaint}
+                                >
+                                    <option value="">Выберите сервисную компанию</option>
+                                    {serviceCompanies.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                <button type={'submit'}>Создать</button>
+                            </form>
+
+                            <button className={'close-btn'} onClick={() => setIsModalCreateOpen(false)}>Отмена</button>
+
+                        </div>
+
+                    </div>)}
         </>
     )
 }
