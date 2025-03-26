@@ -290,31 +290,46 @@ class RecipientSerializer(serializers.ModelSerializer):
 
 class TechnicalMaintenanceSerializer(serializers.ModelSerializer):
     type_of_maintenance_name = serializers.CharField(source='type_of_maintenance.name', read_only=True)
+    type_of_maintenance_description = serializers.CharField(source='type_of_maintenance.description', read_only=True)
+
     organization_carried_out_maintenance_name = serializers.CharField(source='organization_carried_out_maintenance.name', read_only=True)
+    organization_carried_out_maintenance_description = serializers.CharField(
+        source='organization_carried_out_maintenance.description', read_only=True)
+
     to_car_name = serializers.CharField(source='to_car.machines_factory_number', read_only=True)
     service_company_name = serializers.CharField(source='service_company.name', read_only=True)
+    service_company_description = serializers.CharField(source='service_company.description', read_only=True)
 
     class Meta:
         model = models.TechnicalMaintenance
-        fields = ['id', 'type_of_maintenance', 'type_of_maintenance_name', 'organization_carried_out_maintenance',
-                  'organization_carried_out_maintenance_name', 'to_car', 'to_car_name', 'service_company',
-                  'service_company_name', 'date_of_maintenance', 'to_operating_time', 'order_number',
+        fields = ['id', 'type_of_maintenance', 'type_of_maintenance_name', 'type_of_maintenance_description',
+                  'organization_carried_out_maintenance',
+                  'organization_carried_out_maintenance_name', 'organization_carried_out_maintenance_description',
+                  'to_car', 'to_car_name', 'service_company',
+                  'service_company_name', 'service_company_description', 'date_of_maintenance', 'to_operating_time',
+                  'order_number',
                   'order_date']
 
 
 class ComplaintSerializer(serializers.ModelSerializer):
     failure_node_name = serializers.CharField(source='failure_node.name', read_only=True)
+
     recovery_method_name = serializers.CharField(source='recovery_method.name', read_only=True)
+    recovery_method_description = serializers.CharField(source='recovery_method.description', read_only=True)
+
     complaint_car_name = serializers.CharField(source='complaint_car.machines_factory_number', read_only=True)
     service_company_name = serializers.CharField(source='service_company.name', read_only=True)
+    service_company_description = serializers.CharField(source='service_company.description', read_only=True)
+
 
     class Meta:
         model = models.Complaint
         fields = ['id', 'date_of_refusal', 'complaint_operating_time', 'failure_node', 'failure_node_name',
-                  'description_of_failure',
-                  'recovery_method', 'recovery_method_name', 'used_spare_parts', 'date_of_restoration',
+                  'description_of_failure', 'recovery_method', 'recovery_method_name', 'recovery_method_description',
+                  'used_spare_parts', 'date_of_restoration',
                   'equipment_downtime',
-                  'complaint_car', 'complaint_car_name', 'service_company', 'service_company_name']
+                  'complaint_car', 'complaint_car_name', 'service_company', 'service_company_name',
+                  'service_company_description']
 
 
 class TypeOfMaintenanceSerializer(serializers.ModelSerializer):
@@ -330,8 +345,6 @@ class FailureNodeSerializer(serializers.ModelSerializer):
 
 
 class RecoveryMethodSerializer(serializers.ModelSerializer):
-
-
     class Meta:
         model = models.RecoveryMethod
         fields = ['id', 'name', 'description']

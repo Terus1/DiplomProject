@@ -1,5 +1,14 @@
 .change-info-about-tm {
-    background: #D20A11;
+    background: green;
     color: white;
 }
 
+.form-for-create-tm {
+    display: flex;
+    flex-direction: column;
+}
+
+.delete-info-about-tm {
+    background: #D20A11;
+    color: white;
+}

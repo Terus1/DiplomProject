@@ -1,7 +1,7 @@
 import './TechnicalMaintenance.css'
 import {useEffect, useState} from "react";
 
-function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfMaintenances, serviceCompanies, fetchData}) {
+function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfMaintenances, serviceCompanies, fetchData, groups}) {
     const [userTechnicalMaintenances, setUserTechnicalMaintenances] = useState([]);
     const [editTM, setEditTM] = useState(null) // Данные редактируемого ТО
     const [updatedData, setUpdatedData] = useState({
@@ -17,7 +17,17 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
     const [isModalOpenForModel, setIsModalOpenForModel] = useState(false);
     const [editMaintenance, setEditMaintenance] = useState(null); // Данные редактируемой машины
     const [descriptionSelectedModel, setDescriptionSelectedModel] = useState("")
-
+    const [newMaintenance, setNewMaintenance] = useState({
+        type_of_maintenance: "",
+        date_of_maintenance: "",
+        to_operating_time: "",
+        order_number: "",
+        order_date: "",
+        organization_carried_out_maintenance: "",
+        to_car: "",
+        service_company: "",
+    })
+    const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
 
     // Функция для открытия модального окна
     const openModal = (type, model) => {
@@ -74,6 +84,100 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                 [name]: value,
             };
         });
+    };
+
+    // Функция для изменения данных при создании ТО
+    const handleChangeForCreateTM = (e) => {
+        const { name, value } = e.target;
+
+        setNewMaintenance((prevData) => {
+            // Если поле является ForeignKey, сохраняем объект с ID
+            if (["type_of_maintenance", "organization_carried_out_maintenance", "to_car", "service_company"].includes(name)) {
+                const selectedModel = (
+                    name === "type_of_maintenance" ? typeOfMaintenances :
+                        name === "organization_carried_out_maintenance" ? serviceCompanies :
+                            name === "to_car" ? cars :
+                                name === "service_company" ? serviceCompanies : []
+                ).find((model) => model.id === Number(value));
+
+                return {
+                    ...prevData,
+                    [name]: selectedModel ? selectedModel.id : null, // Отправляем только ID
+                };
+            }
+
+            // Для полей даты конвертируем значение в формат YYYY-MM-DD
+            if (["date_of_maintenance", "order_date"].includes(name)) {
+                return {
+                    ...prevData,
+                    [name]: value ? new Date(value).toISOString().split("T")[0] : "", // Приводим к строке формата YYYY-MM-DD
+                };
+            }
+
+            // Для числовых полей
+            if (["to_operating_time", "order_number"].includes(name)) {
+                return {
+                    ...prevData,
+                    [name]: value ? Number(value) : "", // Преобразуем в число
+                };
+            }
+
+            // Для остальных полей (текстовые)
+            return {
+                ...prevData,
+                [name]: value,
+            };
+        });
+    };
+
+    // Функция для принятия создания ТО
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem("access_token");
+            const response = await fetch("http://127.0.0.1:8000/api/technical-maintenances/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(newMaintenance),
+            });
+
+            if (response.ok) {
+                alert("ТО успешно добавлено!");
+                setIsModalOpen(false);
+                fetchData(); // Обновляем список ТО
+            } else {
+                alert("Ошибка при добавлении ТО");
+            }
+        } catch (error) {
+            console.error("Ошибка при добавлении ТО:", error);
+        }
+    };
+
+    // Функция для удаления ТО
+    const handleDelete = async (id) => {
+        if (!window.confirm("Вы уверены, что хотите удалить это ТО?")) return;
+
+        try {
+            const token = localStorage.getItem("access_token");
+            const response = await fetch(`http://127.0.0.1:8000/api/technical-maintenances/${id}/`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                alert("ТО успешно удалено!");
+                fetchData(); // Обновляем список ТО
+            } else {
+                alert("Ошибка при удалении ТО");
+            }
+        } catch (error) {
+            console.error("Ошибка при удалении ТО:", error);
+        }
     };
 
     // Функция для сохранения изменений ТО
@@ -237,6 +341,10 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
     };
 
 
+    const isClientOrServiceOrManger = groups.some(group =>
+        group.name === 'client' || group.name === 'manager' || group.name === 'service organization'
+    );
+
     useEffect(() => {
         if (!user || !cars || !technicalMaintenances) return ;
 
@@ -272,6 +380,7 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
     return (
         <>
+            <button onClick={() => setIsModalCreateOpen(true)}>Создать</button>
             <div className="results-container">
                 {error && <p className="error-message">{error}</p>}
 
@@ -293,16 +402,117 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                     {userTechnicalMaintenances.map(tm => (
                         <tr key={tm.id}>
                             <td>{tm.id}
-                                <button className={'change-info-about-tm'} onClick={() => openEditModal(tm)}>Изменить</button>
+                                {isClientOrServiceOrManger ? (<div className={'buttons'}>
+                                    <button className={'change-info-about-tm'}
+                                            onClick={() => openEditModal(tm)}>Изменить
+                                    </button>
+                                    <button className="delete-info-about-tm"
+                                            onClick={() => handleDelete(tm.id)}>Удалить
+                                    </button>
+                                </div>) : <></>}
+
                             </td>
-                            <td>{tm.type_of_maintenance_name}</td>
-                            <td>{tm.date_of_maintenance}</td>
-                            <td>{tm.to_operating_time}</td>
-                            <td>{tm.order_number}</td>
-                            <td>{tm.order_date}</td>
-                            <td>{tm.organization_carried_out_maintenance_name}</td>
-                            <td>{tm.to_car_name}</td>
-                            <td>{tm.service_company_name}</td>
+
+                            <td>
+                                <button className="button-info"
+                                onClick={() => openWindowForModel(
+                                    'Вид ТО',
+                                    tm.type_of_maintenance_name || 'Не указано',
+                                    tm.type_of_maintenance_description || 'Описание отсутствует'
+                                )}>
+
+                                    <span className="object-of-tm">
+                                        {tm.type_of_maintenance_name || 'Не указано'}
+                                    </span>
+                                </button>
+                            </td>
+
+                            <td>
+                                <button className="button-info"
+                                onClick={() => openModal(
+                                    'Дата проведения ТО',
+                                    tm.date_of_maintenance || 'Не указано'
+                                )}>
+                                    <span className="object-of-tm">
+                                        {tm.date_of_maintenance || 'Не указано'}
+                                    </span>
+                                </button>
+                            </td>
+
+
+                            <td>
+                                <button className="button-info"
+                                onClick={() => openModal(
+                                    'Наработка, м/час',
+                                    tm.to_operating_time || 'Не указано'
+                                )}>
+                                    <span className="object-of-tm">
+                                        {tm.to_operating_time || 'Не указано'}
+                                    </span>
+                                </button>
+                            </td>
+
+                            <td>
+                                <button className="button-info"
+                                onClick={() => openModal(
+                                    '№ заказ-наряда',
+                                    tm.order_number || 'Не указано'
+                                )}>
+                                    <span className="object-of-tm">
+                                        {tm.order_number || 'Не указано'}
+                                    </span>
+                                </button>
+                            </td>
+
+                            <td>
+                                <button className="button-info"
+                                onClick={() => openModal(
+                                    'Дата заказ-наряда',
+                                    tm.order_date || 'Не указано'
+                                )}>
+                                    <span className="object-of-tm">
+                                        {tm.order_date || 'Не указано'}
+                                    </span>
+                                </button>
+                            </td>
+
+                            <td>
+                                <button className="button-info"
+                                onClick={() => openWindowForModel(
+                                    'Организация, проводившая ТО',
+                                    tm.organization_carried_out_maintenance_name || 'Не указано',
+                                    tm.organization_carried_out_maintenance_description || 'Описание отсутствует'
+                                )}>
+                                    <span className="object-of-tm">
+                                        {tm.organization_carried_out_maintenance_name || 'Не указано'}
+                                    </span>
+                                </button>
+                            </td>
+
+                            <td>
+                                <button className="button-info"
+                                onClick={() => openModal(
+                                    'Машина (Зав. №)',
+                                    tm.to_car_name || 'Не указано'
+                                )}>
+                                    <span className="object-of-tm">
+                                        {tm.to_car_name || 'Не указано'}
+                                    </span>
+                                </button>
+                            </td>
+
+                            <td>
+                                <button className="button-info"
+                                onClick={() => openWindowForModel(
+                                    'Сервисная компания',
+                                    tm.service_company_name || 'Не указано',
+                                    tm.service_company_description || 'Описание отсутствует'
+                                )}>
+                                    <span className="object-of-tm">
+                                        {tm.service_company_name || 'Не указано'}
+                                    </span>
+                                </button>
+                            </td>
                         </tr>
                     ))}
                     </tbody>
@@ -311,17 +521,37 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                 </table>
             </div>
 
-            {isModalOpenForChangeTM && editTM && (<div className={'modal-overlay'}>
-                <div className="modal">
-                    <h2>Редактирование ТО</h2>
+            {isModalOpen && (
+                    <div className={'modal-overlay'}>
+                        <div className="modal">
+                            <p className={'model'}>{modalType}: <br/><span
+                                className={'name-of-model'}>{selectedModel}</span></p>
+                            {/*<p>Описание: {descriptionSelectedModel}</p>*/}
+                            <button className={'close-btn'} onClick={closeModal}>Закрыть</button>
+                        </div>
+                    </div>
+                )
+                || isModalOpenForModel && (
+                    <div className={'modal-overlay'}>
+                        <div className="modal">
+                            <p className={'model'}>{modalType}: <br/><span
+                                className={'name-of-model'}>{selectedModel}</span></p>
+                            <p>Описание: {descriptionSelectedModel}</p>
+                            <button className={'close-btn'} onClick={closeModal}>Закрыть</button>
+                        </div>
+                    </div>
+                )
+                || isModalOpenForChangeTM && editTM && (<div className={'modal-overlay'}>
+                    <div className="modal">
+                        <h2>Редактирование ТО</h2>
 
-                    {/* Вид ТО */}
-                    <label>Вид ТО:</label>
-                    <select
-                        name="type_of_maintenance"
-                        value={updatedData.type_of_maintenance || ""}
-                        onChange={(e) => {
-                            const selectedId = parseInt(e.target.value, 10);
+                        {/* Вид ТО */}
+                        <label>Вид ТО:</label>
+                        <select
+                            name="type_of_maintenance"
+                            value={updatedData.type_of_maintenance || ""}
+                            onChange={(e) => {
+                                const selectedId = parseInt(e.target.value, 10);
                             const selectedModel = typeOfMaintenances.find(model => model.id === selectedId);
 
                             setUpdatedData(prevState => ({
@@ -422,7 +652,9 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
                     >
                         <option value="">Текущая машина (Зав. №)
                             - {updatedData.to_car_name}</option>
-                        {cars.map(company => (
+                        {cars
+                            .filter(car => car.client_details === user.nickname)
+                            .map(company => (
                             <option key={company.id} value={company.id}>{company.machines_factory_number}</option>
                         ))}
                     </select>
@@ -462,7 +694,127 @@ function TechnicalMaintenance({user, cars, technicalMaintenances, error, typeOfM
 
                 </div>
 
-            </div>)}
+            </div>)
+                || isModalCreateOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal">
+                            <p>Добавить новое ТО</p>
+                            <form onSubmit={handleSubmit} className={'form-for-create-tm'}>
+                                {/* Вид ТО */}
+                                <label>Вид ТО:</label>
+                                <select
+                                    name="type_of_maintenance"
+                                    value={newMaintenance.type_of_maintenance || ""}
+                                    onChange={handleChangeForCreateTM}
+                                    required
+                                >
+                                    <option value="">Выберите вид ТО</option>
+                                    {typeOfMaintenances.map(model => (
+                                        <option key={model.id} value={model.id}>
+                                            {model.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {/* Дата проведения ТО */}
+                                <label>Дата проведения ТО:</label>
+                                <input
+                                    type="date"
+                                    name="date_of_maintenance"
+                                    value={newMaintenance.date_of_maintenance || ""}
+                                    onChange={handleChangeForCreateTM}
+                                    required
+                                />
+
+                                {/* Наработка, м/час */}
+                                <label>Наработка, м/час:</label>
+                                <input
+                                    type="number"
+                                    name="to_operating_time"
+                                    value={newMaintenance.to_operating_time || ""}
+                                    onChange={handleChangeForCreateTM}
+                                    required
+                                />
+
+                                {/* № заказ-наряда */}
+                                <label>№ заказ-наряда:</label>
+                                <input
+                                    type="text"
+                                    name="order_number"
+                                    value={newMaintenance.order_number || ""}
+                                    onChange={handleChangeForCreateTM}
+                                    required
+                                />
+
+                                {/* Дата заказ-наряда */}
+                                <label>Дата заказ-наряда:</label>
+                                <input
+                                    type="date"
+                                    name="order_date"
+                                    value={newMaintenance.order_date || ""}
+                                    onChange={handleChangeForCreateTM}
+                                    required
+                                />
+
+                                {/* Организация, проводившая ТО */}
+                                <label>Организация, проводившая ТО:</label>
+                                <select
+                                    name="organization_carried_out_maintenance"
+                                    value={newMaintenance.organization_carried_out_maintenance || ""}
+                                    onChange={handleChangeForCreateTM}
+                                    required
+                                >
+                                    <option value="">Выберите организацию</option>
+                                    {serviceCompanies.map(model => (
+                                        <option key={model.id} value={model.id}>
+                                            {model.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {/* Машина */}
+                                <label>Машина:</label>
+                                <select
+                                    name="to_car"
+                                    value={newMaintenance.to_car || ""}
+                                    onChange={handleChangeForCreateTM}
+                                    required
+                                >
+                                    <option value="">Выберите машину</option>
+                                    {cars
+                                        .filter(car => car.client_details === user.nickname)
+                                        .map(car => (
+                                        <option key={car.id} value={car.id}>
+                                            {car.machines_factory_number}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {/* Сервисная компания */}
+                                <label>Сервисная компания:</label>
+                                <select
+                                    name="service_company"
+                                    value={newMaintenance.service_company || ""}
+                                    onChange={handleChangeForCreateTM}
+                                    required
+                                >
+                                    <option value="">Выберите сервисную компанию</option>
+                                    {serviceCompanies.map(model => (
+                                        <option key={model.id} value={model.id}>
+                                            {model.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {/* Кнопка для отправки формы */}
+                                <button type="submit">Создать</button>
+                            </form>
+
+                            {/* Кнопка закрытия модального окна */}
+                            <button onClick={() => setIsModalCreateOpen(false)}>Отмена</button>
+                        </div>
+                    </div>
+                )}
         </>
     )
 }

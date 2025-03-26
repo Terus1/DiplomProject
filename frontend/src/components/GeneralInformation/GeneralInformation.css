@@ -15,7 +15,7 @@
 }
 
 .change-info-about-car {
-    background: #D20A11;
+    background: green;
     color: white;
 
 }
@@ -94,4 +94,22 @@
     background: rgba(235, 230, 214, 0.76);
 }
 
+
+.form-for-create-car {
+    display: flex;
+    flex-direction: column;
+}
+
+thead {
+    background: #EBE6D6
+}
+
+.table-results th {
+    color: #D20A11;
+}
+
+.delete-info-about-car {
+    background: #D20A11;
+    color: white;
+}
 

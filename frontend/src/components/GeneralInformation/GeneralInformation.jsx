@@ -1,10 +1,10 @@
 import './GeneralInformation.css'
-import {useEffect, useState} from "react";
+import {use, useEffect, useState} from "react";
 import {options} from "axios";
 
 
 function GeneralInformation({cars, setCars, error, user, techniques, engines, transmissions, drivingBridges, controlledBridges,
-                                clients, recipients, serviceCompanies, fetchData, groups}) {
+                                clients, recipients, serviceCompanies, fetchData, groups, fetchCars}) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalOpenForModel, setIsModalOpenForModel] = useState(false);
     const [modalType, setModalType] = useState(""); // Тип модального окна
@@ -23,8 +23,30 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
         recipient: {},
     }); // Измененные данные
 
-
     const [isModalOpenForChangeCar, setIsModalOpenForChangeCar] = useState(false);
+
+    const [newCar, setNewCar] = useState({
+        machines_factory_number: "",
+        model_of_technique: "",
+        engine_model: "",
+        engine_serial_number: "",
+        transmission_model: "",
+        factory_number_of_transmission: "",
+        driving_bridge_model: "",
+        factory_number_of_drive_axle: "",
+        controlled_bridge_model: "",
+        factory_number_of_controlled_bridge: "",
+        delivery_contract_number_and_date: "",
+        date_of_shipment_from_the_factory: "",
+        recipient: "",
+        delivery_address: "",
+        equipment: "",
+        client: "",
+        service_company: "",
+    })
+    const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
+    const [userCars, setUserCars] = useState([])
+
 
     useEffect(() => {
         if (cars && cars.length > 0) {
@@ -51,7 +73,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
     useEffect(() => {
         if (updatedData && updatedData.length > 0) {
             console.log('updatedData', updatedData)
-            console.log('Группа пользотвателя', groups[0]['name'])
+            console.log('Группа пользователя', groups[0]['name'])
         }
     }, [updatedData]);  // Логируем только когда updatedData изменилось
 
@@ -120,6 +142,107 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
     };
 
 
+    // Функция для изменения данных при создании Машины
+    const handleChangeForCreateCar = (e) => {
+        const { name, value } = e.target;
+
+        setNewCar((prevData) => {
+            // Если поле является ForeignKey, сохраняем объект с ID
+            if (["model_of_technique", "engine_model", "transmission_model", "driving_bridge_model", "controlled_bridge_model", "recipient", "client", "service_company"].includes(name)) {
+                const selectedModel = (
+                    name === "model_of_technique" ? techniques :
+                        name === "engine_model" ? engines :
+                            name === "transmission_model" ? transmissions :
+                                name === "driving_bridge_model" ? drivingBridges :
+                                    name === "controlled_bridge_model" ? controlledBridges :
+                                        name === "recipient" ? recipients :
+                                            name === "client" ? clients :
+                                                name === "service_company" ? serviceCompanies : []
+                ).find((model) => model.id === Number(value));
+
+                return {
+                    ...prevData,
+                    [name]: selectedModel ? selectedModel.id : null, // Отправляем только ID
+                };
+            }
+
+            // Для полей даты конвертируем значение в формат YYYY-MM-DD
+            if (["date_of_shipment_from_the_factory"].includes(name)) {
+                return {
+                    ...prevData,
+                    [name]: value ? new Date(value).toISOString().split("T")[0] : "", // Приводим к строке формата YYYY-MM-DD
+                };
+            }
+
+            // Для числовых полей
+            if (["machines_factory_number", "engine_serial_number",
+
+                "delivery_contract_number_and_date"].includes(name)) {
+                return {
+                    ...prevData,
+                    [name]: value ? Number(value) : "", // Преобразуем в число
+                };
+            }
+
+            // Для остальных полей (текстовые)
+            return {
+                ...prevData,
+                [name]: value,
+            };
+        });
+    };
+
+    // Функция для принятия создания Машины
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem("access_token");
+            const response = await fetch("http://127.0.0.1:8000/api/cars/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(newCar),
+            });
+
+            if (response.ok) {
+                alert("Машина успешно добавлена!");
+                setIsModalOpen(false);
+                fetchCars(); // Обновляем список Машин
+            } else {
+                alert("Ошибка при добавлении Машины");
+            }
+        } catch (error) {
+            console.error("Ошибка при добавлении Машины:", error);
+        }
+    };
+
+    // Функция для удаления Машины
+    const handleDelete = async (id) => {
+        if (!window.confirm("Вы уверены, что хотите удалить эту Машину?")) return;
+
+        try {
+            const token = localStorage.getItem("access_token");
+            const response = await fetch(`http://127.0.0.1:8000/api/cars/${id}/`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                alert("Машина успешно удалена!");
+                fetchCars(); // Обновляем список ТО
+            } else {
+                alert("Ошибка при удалении Машины");
+            }
+        } catch (error) {
+            console.error("Ошибка при удалении Машины:", error);
+        }
+    };
+
+
     // const updateCar = async () => {
     //     try {
     //         const token = localStorage.getItem('access_token')
@@ -177,7 +300,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                 console.log("Данные успешно обновились. Ответ сервера:", responseData);
                 // const responseText = await response.text()
                 // console.log("Ответ сервера (RAW)", responseText)
-                await fetchData();
+                await fetchCars();
 
                 closeModal();
                 // window.location.reload();
@@ -249,13 +372,30 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
     };
 
 
+    const isManager = groups.some(group =>
+        group.name === 'manager'
+    );
+
+
+    useEffect(() => {
+        if (!user || !cars) return;
+
+        const filteredCars = cars.filter(car => car.client_details.toLowerCase() === user.nickname.toLowerCase());
+
+        setUserCars(filteredCars);
+    }, [user, cars]);
+
+
+
     return (
         <>
+            {isManager && <button onClick={() => setIsModalCreateOpen(true)}>Создать</button>}
+
             <div className="results-container">
                 {error && <p className="error-message">{error}</p>}
 
                 <table className="table-results">
-                    <thead>
+                    <thead className={'thead'}>
                     <tr>
                         <th>№ п/п</th>
                         <th>Модель техники</th>
@@ -277,16 +417,18 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                     </tr>
                     </thead>
                     <tbody>
-                    {cars?.length > 0 ? (
-                        cars
-                            .filter(car => car.client_details.toLowerCase() === user.nickname.toLowerCase()) // Оставляем только нужные элементы
+                    {userCars?.length > 0 ? (
+                        userCars
                             .map((car, index) => (
                                 <tr key={car.id ? `car-${car.id}` : `car-index-${index}`}>
                                     <td>Машина № {index + 1} <br/>
-                                        {(groups[0]['name'] === 'client') ?
-                                            (<button className="change-info-about-car"
-                                                     onClick={() => openEditModal(car)}>Изменить
-                                            </button>) : <></>}
+                                        {isManager && (
+                                            <div className="buttons">
+                                                <button className="change-info-about-car"
+                                                        onClick={() => openEditModal(car)}>Изменить
+                                                </button>
+                                                <button className={'delete-info-about-car'} onClick={() => handleDelete(car.id)}>Удалить</button>
+                                            </div>)}
 
                                     </td>
 
@@ -334,10 +476,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Зав. № двигателя */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Зав. № двигателя',
-                                                car.engine_serial_number || 'Не указано'
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Зав. № двигателя',
+                                                    car.engine_serial_number || 'Не указано'
+                                                )}>
                                             <span className={'object-of-car'}>{car.engine_serial_number || "—"}</span>
                                         </button>
                                     </td>
@@ -345,11 +487,11 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Трансмиссия */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openWindowForModel(
-                                                'Трансмиссия',
-                                                car.transmission_model_details?.name || 'Не указано',
-                                                car.transmission_model_details?.description || 'Описание отсутствует'
-                                            )}>
+                                                onClick={() => openWindowForModel(
+                                                    'Трансмиссия',
+                                                    car.transmission_model_details?.name || 'Не указано',
+                                                    car.transmission_model_details?.description || 'Описание отсутствует'
+                                                )}>
                                             <span className="object-of-car">
                                                 {car.transmission_model_details?.name || "—"}
                                             </span>
@@ -359,10 +501,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Зав. № трансмиссии */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Зав. № трансмиссии',
-                                                car.factory_number_of_transmission || 'Не указано'
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Зав. № трансмиссии',
+                                                    car.factory_number_of_transmission || 'Не указано'
+                                                )}>
                                             <span className="object-of-car">
                                                 {car.factory_number_of_transmission || "—"}
                                             </span>
@@ -372,11 +514,11 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Ведущий мост */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openWindowForModel(
-                                                'Ведущий мост',
-                                                car.driving_bridge_model_details?.name || 'Не указано',
-                                                car.driving_bridge_model_details?.description || 'Описание отсутствует'
-                                            )}>
+                                                onClick={() => openWindowForModel(
+                                                    'Ведущий мост',
+                                                    car.driving_bridge_model_details?.name || 'Не указано',
+                                                    car.driving_bridge_model_details?.description || 'Описание отсутствует'
+                                                )}>
                                             <span className="object-of-car">
                                                 {car.driving_bridge_model_details?.name || "—"}
                                             </span>
@@ -386,10 +528,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Зав. № ведущего моста */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Зав. № ведущего моста',
-                                                car.factory_number_of_drive_axle || 'Не указано'
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Зав. № ведущего моста',
+                                                    car.factory_number_of_drive_axle || 'Не указано'
+                                                )}>
                                             <span className="object-of-car">
                                                 {car.factory_number_of_drive_axle || "—"}
                                             </span>
@@ -399,11 +541,11 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Управляемый мост */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openWindowForModel(
-                                                'Управляемый мост',
-                                                car.controlled_bridge_model_details?.name || 'Не указано',
-                                                car.controlled_bridge_model_details?.description || 'Описание отсутствует'
-                                            )}>
+                                                onClick={() => openWindowForModel(
+                                                    'Управляемый мост',
+                                                    car.controlled_bridge_model_details?.name || 'Не указано',
+                                                    car.controlled_bridge_model_details?.description || 'Описание отсутствует'
+                                                )}>
                                             <span className="object-of-car">
                                                 {car.controlled_bridge_model_details?.name || "—"}
                                             </span>
@@ -413,10 +555,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Зав. № управляемого моста */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Зав. № управляемого моста',
-                                                car.factory_number_of_controlled_bridge || 'Не указано'
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Зав. № управляемого моста',
+                                                    car.factory_number_of_controlled_bridge || 'Не указано'
+                                                )}>
                                             <span className="object-of-car">
                                                 {car.factory_number_of_controlled_bridge || "—"}
                                             </span>
@@ -426,10 +568,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Дата отгрузки */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Дата отгрузки',
-                                                car.date_of_shipment_from_the_factory || 'Не указано'
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Дата отгрузки',
+                                                    car.date_of_shipment_from_the_factory || 'Не указано'
+                                                )}>
                                             <span className="object-of-car">
                                                 {car.date_of_shipment_from_the_factory || "—"}
                                             </span>
@@ -439,10 +581,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Покупатель */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Покупатель',
-                                                car.client_details || 'Не указано',
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Покупатель',
+                                                    car.client_details || 'Не указано',
+                                                )}>
                                             <span className="object-of-car">{car.client_details || "—"}</span>
                                         </button>
                                     </td>
@@ -450,10 +592,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Грузополучатель */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Грузополучатель',
-                                                car.recipient_details || 'Не указано'
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Грузополучатель',
+                                                    car.recipient_details || 'Не указано'
+                                                )}>
                                             <span className="object-of-car">{car.recipient_details || "—"}</span>
                                         </button>
                                     </td>
@@ -461,10 +603,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Адрес поставки */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Адрес поставки',
-                                                car.delivery_address || 'Не указано'
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Адрес поставки',
+                                                    car.delivery_address || 'Не указано'
+                                                )}>
                                             <span className="object-of-car">{car.delivery_address || "—"}</span>
                                         </button>
                                     </td>
@@ -472,10 +614,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Комплектация */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Комплектация',
-                                                car.equipment || 'Не указано'
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Комплектация',
+                                                    car.equipment || 'Не указано'
+                                                )}>
                                             <span className="object-of-car">{car.equipment || "—"}</span>
                                         </button>
                                     </td>
@@ -483,10 +625,10 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     {/* Сервисная компания */}
                                     <td>
                                         <button className="button-info"
-                                            onClick={() => openModal(
-                                                'Сервисная компания',
-                                                car.service_company_details || 'Не указано'
-                                            )}>
+                                                onClick={() => openModal(
+                                                    'Сервисная компания',
+                                                    car.service_company_details || 'Не указано'
+                                                )}>
                                             <span className="object-of-car">{car.service_company_details || "—"}</span>
                                         </button>
                                     </td>
@@ -531,7 +673,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                             <label>Модель техники:</label>
                             <select
                                 name="model_of_technique"
-                                value={updatedData.model_of_technique?.id || ""}
+                                value={updatedData.model_of_technique || ""}
                                 onChange={(e) => {
                                     const selectedId = parseInt(e.target.value, 10);
                                     const selectedModel = techniques.find(model => model.id === selectedId);
@@ -547,7 +689,8 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                 }}
                             >
                                 {/* Первая опция для выбора */}
-                                <option value="">Текущая модель техники - {updatedData.model_of_technique_details?.name}</option>
+                                <option value="">Текущая модель техники
+                                    - {updatedData.model_of_technique_details?.name}</option>
 
                                 {/* Фильтруем, чтобы текущая модель не отображалась и в списке */}
                                 {techniques
@@ -568,7 +711,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                             <label>Модель двигателя:</label>
                             <select
                                 name="engine_model"
-                                value={updatedData.engine_model?.id || ""}
+                                value={updatedData.engine_model || ""}
                                 onChange={(e) => {
                                     const selectedId = parseInt(e.target.value, 10);
                                     const selectedModel = engines.find(model => model.id === selectedId)
@@ -582,7 +725,8 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     }
                                 }}
                             >
-                                <option value="">Текущая модель двигателя - {updatedData.engine_model_details?.name}</option>
+                                <option value="">Текущая модель двигателя
+                                    - {updatedData.engine_model_details?.name}</option>
                                 {engines.map(model => (
                                     <option key={model.id} value={model.id}>{model.name}</option>
                                 ))}
@@ -596,7 +740,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                             <label>Модель трансмиссии:</label>
                             <select
                                 name="transmission_model"
-                                value={updatedData.transmission_model?.id || ""}
+                                value={updatedData.transmission_model || ""}
                                 onChange={(e) => {
                                     const selectedId = parseInt(e.target.value, 10);
                                     const selectedModel = transmissions.find(model => model.id === selectedId)
@@ -610,7 +754,8 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     }
                                 }}
                             >
-                                <option value="">Текущая модель трансмисии - {updatedData.transmission_model_details?.name}</option>
+                                <option value="">Текущая модель трансмисии
+                                    - {updatedData.transmission_model_details?.name}</option>
                                 {transmissions.map(model => (
                                     <option key={model.id} value={model.id}>{model.name}</option>
                                 ))}
@@ -624,7 +769,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                             <label>Модель ведущего моста:</label>
                             <select
                                 name="driving_bridge_model"
-                                value={updatedData.driving_bridge_model?.id || ""}
+                                value={updatedData.driving_bridge_model || ""}
                                 onChange={(e) => {
                                     const selectedId = parseInt(e.target.value, 10);
                                     const selectedModel = drivingBridges.find(model => model.id === selectedId)
@@ -639,7 +784,8 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                 }}
                             >
                                 <option
-                                    value="">Текущая модель ведущего моста - {updatedData.driving_bridge_model_details?.name}</option>
+                                    value="">Текущая модель ведущего моста
+                                    - {updatedData.driving_bridge_model_details?.name}</option>
                                 {drivingBridges.map(model => (
                                     <option key={model.id} value={model.id}>{model.name}</option>
                                 ))}
@@ -653,7 +799,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                             <label>Модель управляемого моста:</label>
                             <select
                                 name="controlled_bridge_model"
-                                value={updatedData.controlled_bridge_model?.id || ""}
+                                value={updatedData.controlled_bridge_model || ""}
                                 onChange={(e) => {
                                     const selectedId = parseInt(e.target.value, 10);
                                     const selectedModel = controlledBridges.find(model => model.id === selectedId)
@@ -668,7 +814,8 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                 }}
                             >
                                 <option
-                                    value="">Текущая модель управлямемого моста - {updatedData.controlled_bridge_model_details?.name}</option>
+                                    value="">Текущая модель управлямемого моста
+                                    - {updatedData.controlled_bridge_model_details?.name}</option>
                                 {controlledBridges.map(model => (
                                     <option key={model.id} value={model.id}>{model.name}</option>
                                 ))}
@@ -688,7 +835,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                             <label>Покупатель:</label>
                             <select
                                 name="client"
-                                value={updatedData.client?.id || ""}
+                                value={updatedData.client || ""}
                                 onChange={(e) => {
                                     const selectedId = parseInt(e.target.value, 10);
                                     const selectedModel = clients.find(model => model.id === selectedId)
@@ -713,7 +860,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                             <label>Грузополучатель:</label>
                             <select
                                 name="recipient"
-                                value={updatedData.recipient?.id || ""}
+                                value={updatedData.recipient || ""}
                                 onChange={(e) => {
                                     const selectedId = parseInt(e.target.value, 10);
                                     const selectedModel = recipients.find(model => model.id === selectedId)
@@ -747,7 +894,7 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                             <label>Сервисная компания:</label>
                             <select
                                 name="service_company"
-                                value={updatedData.service_company?.id || ""}
+                                value={updatedData.service_company || ""}
                                 onChange={(e) => {
                                     const selectedId = parseInt(e.target.value, 10);
                                     setUpdatedData(prevState => ({
@@ -756,7 +903,8 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
                                     }));
                                 }}
                             >
-                                <option value="">Текущая сервисная компания - {updatedData.service_company_detail?.name}</option>
+                                <option value="">Текущая сервисная компания
+                                    - {updatedData.service_company_detail?.name}</option>
                                 {serviceCompanies.map(company => (
                                     <option key={company.id} value={company.id}>{company.name}</option>
                                 ))}
@@ -764,6 +912,196 @@ function GeneralInformation({cars, setCars, error, user, techniques, engines, tr
 
                             <button onClick={updateCar}>Сохранить</button>
                             <button className={'close-btn'} onClick={closeModal}>Отмена</button>
+
+                        </div>
+
+                    </div>
+                ) || isModalCreateOpen && (
+                    <div className={'modal-overlay'}>
+                        <div className="modal">
+                            <form onSubmit={handleSubmit} className={'form-for-create-car'}>
+
+
+                                <h2>Добавить новую машину</h2>
+
+                                {/* Модель техники */}
+                                <label>Модель техники:</label>
+                                <select
+                                    name="model_of_technique"
+                                    value={newCar.model_of_technique || ""}
+                                    onChange={handleChangeForCreateCar}
+                                    required
+                                >
+                                    <option value="">Выберите модель техники</option>
+                                    {techniques.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+
+                                {/*Зав. № машины*/}
+                                <label>Зав. № машины:</label>
+                                <input
+                                    type="text"
+                                    name="machines_factory_number"
+                                    value={newCar.machines_factory_number ?? ""}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^\d*$/.test(value)) { // Только цифры
+                                            setNewCar(prev => ({
+                                                ...prev,
+                                                machines_factory_number: value // Храним как строку
+                                            }));
+                                        }
+                                    }}
+                                />
+
+
+                                <label>Модель двигателя:</label>
+                                <select
+                                    name="engine_model"
+                                    value={newCar.engine_model || ""}
+                                    onChange={handleChangeForCreateCar}
+                                >
+                                    <option value="">Выберите модель двигателя</option>
+                                    {engines.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                {/*Зав. № двигателя*/}
+                                <label>Зав. № двигателя:</label>
+                                {/*<input type="number" name="engine_serial_number"*/}
+                                {/*       value={newCar.engine_serial_number || ""} onChange={handleChangeForCreateCar}/>*/}
+                                <input
+                                    type="text"
+                                    name="engine_serial_number"
+                                    value={newCar.engine_serial_number ?? ""}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^\d*$/.test(value)) { // Только цифры
+                                            setNewCar(prev => ({
+                                                ...prev,
+                                                engine_serial_number: value // Храним как строку
+                                            }));
+                                        }
+                                    }}
+                                />
+
+
+                                <label>Модель трансмиссии:</label>
+                                <select
+                                    name="transmission_model"
+                                    value={newCar.transmission_model || ""}
+                                    onChange={handleChangeForCreateCar}
+                                >
+                                    <option value="">Выберите модель трансмиссии</option>
+                                    {transmissions.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                {/*Зав. № трансмиссии*/}
+                                <label>Зав. № трансмиссии:</label>
+                                <input type="text" name="factory_number_of_transmission"
+                                       value={newCar.factory_number_of_transmission || ""}
+                                       onChange={handleChangeForCreateCar}/>
+
+
+                                <label>Модель ведущего моста:</label>
+                                <select
+                                    name="driving_bridge_model"
+                                    value={newCar.driving_bridge_model || ""}
+                                    onChange={handleChangeForCreateCar}
+                                >
+                                    <option value="">Выберите модель ведущего моста</option>
+                                    {drivingBridges.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                {/*Зав. № ведущего моста*/}
+                                <label>Зав. № ведущего моста:</label>
+                                <input type="text" name="factory_number_of_drive_axle"
+                                       value={newCar.factory_number_of_drive_axle || ""}
+                                       onChange={handleChangeForCreateCar}/>
+
+                                <label>Модель управляемого моста:</label>
+                                <select
+                                    name="controlled_bridge_model"
+                                    value={newCar.controlled_bridge_model || ""}
+                                    onChange={handleChangeForCreateCar}
+                                >
+                                    <option value="">Выберите модель управляемого моста</option>
+                                    {controlledBridges.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                {/*Зав. № управляемого моста*/}
+                                <label>Зав. № управляемого моста:</label>
+                                <input type="text" name="factory_number_of_controlled_bridge"
+                                       value={newCar.factory_number_of_controlled_bridge || ""}
+                                       onChange={handleChangeForCreateCar}/>
+
+
+                                {/*Дата отгрузки с завода*/}
+                                <label>Дата отгрузки с завода:</label>
+                                <input type="date" name="date_of_shipment_from_the_factory"
+                                       value={newCar.date_of_shipment_from_the_factory || ""}
+                                       onChange={handleChangeForCreateCar}/>
+
+                                <label>Покупатель:</label>
+                                <select
+                                    name="client"
+                                    value={newCar.client || ""}
+                                    onChange={handleChangeForCreateCar}
+                                >
+                                    <option value="">Выберите покупателя</option>
+                                    {clients.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                {/*Грузополучатель*/}
+                                <label>Грузополучатель:</label>
+                                <select
+                                    name="recipient"
+                                    value={newCar.recipient || ""}
+                                    onChange={handleChangeForCreateCar}
+                                >
+                                    <option value="">Выберите грузополучателя</option>
+                                    {recipients.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                {/*Адрес поставки*/}
+                                <label>Адрес поставки:</label>
+                                <input type="text" name="delivery_address" value={newCar.delivery_address || ""}
+                                       onChange={handleChangeForCreateCar}/>
+
+                                {/*Комплектации*/}
+                                <label>Комплектации:</label>
+                                <input type="text" name="equipment" value={newCar.equipment || ""}
+                                       onChange={handleChangeForCreateCar}/>
+
+                                <label>Сервисная компания:</label>
+                                <select
+                                    name="service_company"
+                                    value={newCar.service_company || ""}
+                                    onChange={handleChangeForCreateCar}
+                                >
+                                    <option value="">Выберите сервисную компанию</option>
+                                    {serviceCompanies.map(model => (
+                                        <option key={model.id} value={model.id}>{model.name}</option>
+                                    ))}
+                                </select>
+
+                                <button type={'submit'}>Создать</button>
+                            </form>
+
+                            <button className={'close-btn'} onClick={() => setIsModalCreateOpen(false)}>Отмена</button>
 
                         </div>
 

@@ -24,25 +24,26 @@ function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoa
     const [recoveryMethods, setRecoveryMethods] = useState([]);
 
 
+
+    const fetchCars = async () => {
+        try {
+            const response = await axios.get("http://127.0.0.1:8000/api/cars/", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            console.log("Данные машин из AutMain", response.data);
+            setCars(response.data);
+            setError(null);
+
+        } catch (error) {
+            console.error("Ошибка при получении машин", error);
+            setError("Ошибка загрузки данных. Попробуйте позже.");
+        } finally {
+            setIsLoadingCars(false);
+        }
+    };
+
     // Загружаем машины
     useEffect(() => {
-        const fetchCars = async () => {
-            try {
-                const response = await axios.get("http://127.0.0.1:8000/api/cars/", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                console.log("Данные машин из AutMain", response.data);
-                setCars(response.data);
-                setError(null);
-
-            } catch (error) {
-                console.error("Ошибка при получении машин", error);
-                setError("Ошибка загрузки данных. Попробуйте позже.");
-            } finally {
-                setIsLoadingCars(false);
-            }
-        };
-
         if (token) {
             fetchCars();
         }
@@ -217,7 +218,7 @@ function AuthMain({ user, cars, setCars, error, setError, token, loading, setLoa
                                                                     engines={engines} transmissions={transmissions}
                                                                     drivingBridges={drivingBridges} controlledBridges={controlledBridges}
                                                                     clients={clients} recipients={recipients} serviceCompanies={serviceCompanies}
-                                                                    fetchData={fetchData} groups={groups}
+                                                                    fetchData={fetchData} groups={groups} fetchCars={fetchCars}
                     />}
                     {activeTab === "technical" && <TechnicalMaintenance user={user} cars={cars}
                                                                         technicalMaintenances={technicalMaintenances}

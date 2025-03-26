@@ -8,7 +8,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -74,6 +74,7 @@ class CarsListView(CarsFilteredListView):
     filterset_class = filters.CarFilter
 
 
+
 # Представление конкретной машины
 class CarDetailView(DetailView):
     model = models.Car
@@ -88,7 +89,7 @@ class CarDetailView(DetailView):
 class CarViewSet(ModelViewSet):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -160,11 +161,13 @@ class RecipientListView(ModelViewSet):
 class TechnicalMaintenanceListView(ModelViewSet):
     queryset = models.TechnicalMaintenance.objects.all()
     serializer_class = serializers.TechnicalMaintenanceSerializer
+    permission_classes = [DjangoModelPermissions]
 
 
 class ComplaintListView(ModelViewSet):
     queryset = models.Complaint.objects.all()
     serializer_class = serializers.ComplaintSerializer
+    permission_classes = [DjangoModelPermissions]
 
 
 class TypeOfMaintenanceListView(ModelViewSet):

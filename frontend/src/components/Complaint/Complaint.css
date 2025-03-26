@@ -1,4 +1,9 @@
 .change-info-about-complaint {
+    background: green;
+    color: white;
+}
+
+.delete-info-about-complaint {
     background: #D20A11;
     color: white;
 }

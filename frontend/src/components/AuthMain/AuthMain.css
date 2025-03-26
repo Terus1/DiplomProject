@@ -24,3 +24,6 @@
 
 }
 
+.active {
+    background: rgba(235, 230, 214, 0.67);
+}
