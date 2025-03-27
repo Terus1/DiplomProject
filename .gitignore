@@ -4,8 +4,6 @@
 # Виртуальное окружение
 venv/
 
-# Django файлы
-backend/db.sqlite3
 
 # Node.js зависимости
 frontend/node_modules/
