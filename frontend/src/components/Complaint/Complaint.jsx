@@ -355,7 +355,7 @@ function Complaint({user, cars, complaints, groups, failureNodes, recoveryMethod
     };
 
     const isManagerOrServiceCompany = groups.some(group =>
-        group.name === 'manager' || group.name === 'service company'
+        group.name === 'manager' || group.name === 'service organization'
     );
 
 

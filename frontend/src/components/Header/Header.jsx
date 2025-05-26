@@ -23,7 +23,7 @@ function Header({handleLogout, navigate, user, setUser, token, groups}) {
                 Группы: {groups.length > 0 ? (
                     groups.map((group) => (
                         <span key={group.id}>
-                            <strong>{group.name} - ID:{group.id}</strong>
+                            <strong>{group.name}</strong>
                         </span>
 
 
